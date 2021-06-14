@@ -1,0 +1,841 @@
+html, body{
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+
+  color: #3E3E3E;
+  background-color: #dddddd;
+  font-family: "Tahoma", Times, serif;
+}
+
+.wrapper1{
+  height: 100%;
+  width:86%;
+  top: 0px;
+
+  padding-left: 7%;
+  padding-right: 7%;
+}
+
+/* Only login is displayed initially */
+
+#registration{
+  display: none;
+}
+
+#home{
+  display: none;
+}
+
+#game{
+  display: none;
+}
+
+#homeAccount{
+  display: none;
+}
+
+/* Title image */
+
+.containerTitle{
+    width: 100%;
+    height: 15%;
+    position: relative;
+}
+
+.containerTitleImage{
+    height: 70%;
+    width: 50%;
+    padding-left:1%;
+    position: absolute;
+    bottom: 1vh;
+    left: 1vw;
+    float: left;
+    text-align: left;
+}
+
+.titleImage{
+  object-position: left bottom;
+    height: 100%;
+    width: 100%;
+    object-fit: scale-down;
+    float: left;
+    text-align: left;
+}
+
+/* User info */
+.userWrapper{
+  width: 20%;
+  height: 14%;
+
+  position: absolute;
+  bottom: 86%;
+  right: 7%;
+
+  display: none;
+}
+
+.userContainer{
+  position: absolute;
+  bottom: 0px; 
+  right: 0px;
+}
+
+#tableUser{
+  text-align: right;
+  bottom: 0px;
+}
+
+#imgChip{
+  width: 1.5vmax;
+  height: 1.5vmax;
+}
+
+/* Containers */
+
+.containerPage{
+  width: 100%;
+  height: 85%;
+  position: relative;
+}
+
+.containerNav{
+    width: 100%;
+    height: 7vh;
+}
+
+.containerMain{
+    width: 100%;
+    height: 86%;
+}
+
+.containerFoot{
+    width: 100%;
+    height: 7vh;
+
+    position:absolute;
+    text-align: right;
+    float:right;
+    bottom:0;
+}
+
+/* Labels */
+label{
+  font-family: "Tahoma", Times, serif;
+  color: #3E3E3E;
+  font-size: 1.5vmax;
+}
+
+.labelTitle{
+  text-align: left;
+  font-size: 2.0vmax;
+  font-weight: bold;
+  margin: 0;
+  display: inline-block;
+}
+
+.labelUser{
+  font-size: 1.5vmax;
+}
+
+/* Input fields */
+input{
+  font-family: "Tahoma", Times, serif;
+  font-size: 1.5vmax;
+}
+
+input[type=text] {
+    width: 100%;
+    padding: 1.2vh 1vw;
+    margin: 8px 0;
+    font-size: 1.5vmax;
+
+    box-sizing: border-box;
+  }
+
+input[type=password] {
+  width: 100%;
+  padding: 1.2vh 1vw;
+  margin: 8px 0;
+  font-size: 1.5vmax;
+
+  box-sizing: border-box;
+}
+
+input[type=number] {
+  width: 33%;
+  padding: 1.2vh 1vw;
+  margin: 8px 0;
+  font-size: 1.5vmax;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+button {
+  background-color: #408cd3;
+  border: none;
+  color: white;
+  padding: 1.5vh 3vmin;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.5vmax;
+  font-family: "Tahoma", Times, serif;
+}
+
+#modalBuyInButton,#modalRebuyButton,#modalWithdrawButton, #modalTipButton {
+  position: absolute;
+  right: 2vh;
+  bottom: 2vh;
+  width: 33%;
+}
+
+.actionButton{
+  width: 15vw;
+  height: 5vh;
+  padding: 0 0;
+}
+
+.navButton{
+  min-width: 10vw;
+  height: 5vh;
+  padding: 0 0.5vw;
+}
+
+.navButton:disabled{
+  background:#3E3E3E
+}
+
+.accountButton{
+  min-width: 20vw;
+  height: 5vh;
+  padding: 0 0.5vw;
+}
+
+.buttonRoomStop{
+  width:100%;
+  height:50%;
+  background-color: red;
+}
+
+.buttonRoomStart{
+  width:100%;
+  height:50%;
+  background-color: rgb(22, 206, 62);
+}
+
+#buttonTip, #buttonAdminMode {
+  float: right;
+  width: 25%;
+
+  margin-left: 0.5vw;
+}
+
+#homeLogOffButton{
+  float: right;
+  margin-left: 0.5vw;
+  width: 10%;
+}
+
+.buttonJoin {
+  /*background-color: #eef079;*/
+  /*color: #3E3E3E;*/
+  width: 10vw;
+  height: 5vh;
+  padding: 0 0;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+  
+
+button:disabled {
+  background: #8a8a8a;;
+}
+
+button:enabled:hover {
+  background-color: #fffb8c;
+  color:#3E3E3E
+}
+
+#buttonTip:hover{
+  background-color: #fffb8c;
+  color:#3E3E3E
+}
+
+#buttonAdminMode:hover{
+  background-color: #fffb8c;
+  color:#3E3E3E
+}
+
+
+.row {
+    width: 100%;
+    min-height: 7vh;
+}
+
+.res{
+    display: none;
+}
+
+
+.tdAccount1{
+  float: left;
+  min-width:20vw;
+}
+
+.tdAccount2{
+  float: left;
+}
+
+.tableRoom{
+  width: 100%;
+}
+
+#tableLeaderboard,#tableTourLeaderboard{
+  background: #bbbbbb;
+  border-radius: 0.5vw;
+  width: 100%
+}
+
+.tdRoom {
+  width: 33% ;
+}
+
+.tdTournament1{
+  width: 66%;
+}
+.tdTournament2{
+  width: 33%;
+}
+
+.tableResult{
+  width: 100%;
+  font-size: 1.5vmax;
+}
+
+.tdResult1{
+  width: 10%;
+}
+.tdResult2{
+  width: 45%;
+}
+
+.tableLeaderboard{
+  width: 100%
+}
+
+.tdLeaderboardRank {
+  width: 10% ;
+  text-align: center;
+}
+
+.tdLeaderboard {
+  width: 30% ;
+}
+
+.tr{
+  width: 100%;
+}
+
+.tbody{
+  width: 100%;
+}
+
+.tableLeaderboardRow{
+  height: 5.5vh;
+  width: 100%;
+}
+
+th{
+  font-size: 1.5vmax;
+  text-align: left;
+}
+
+#roomButtons{
+    text-align: left;
+    max-height: 75%;
+}
+
+#leaderboardTourButton{
+  margin-left: 5px;
+}
+
+canvas{
+    /*max-width: 1000px;*/
+    padding-left: 0;
+    padding-right: 0;
+    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+
+    height: 100%;
+    width: 100%;
+    object-fit: scale-down;
+    /*border:1px solid #000000;*/
+}
+
+.sliderBuyIn{
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 4vh;
+  background-color: #ccc;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.sliderBuyIn::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 4vh; /* Set a specific slider handle width */
+  height: 4vh; /* Slider handle height */
+  background:  #832e7c; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.sliderBuyIn::-moz-range-thumb {
+  width: 2vh; /* Set a specific slider handle width */
+  height: 2vh; /* Slider handle height */
+  background: #832e7c; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.sliderRaise{
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+
+  position:absolute;
+  bottom:0;
+  left: 16vw;
+
+  margin: 0;
+
+  width: 30vw; /* Full-width */
+  height: 5vh;
+  background-color: #ccc;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.sliderRaise::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 4vh; /* Set a specific slider handle width */
+  height: 4vh; /* Slider handle height */
+  background:  #832e7c; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.sliderRaise::-moz-range-thumb {
+  width: 2vh; /* Set a specific slider handle width */
+  height: 2vh; /* Slider handle height */
+  background: #832e7c; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+
+#modalButton{
+  width: 15%;
+}
+
+#buyinTextField{
+  width: 15%;
+}
+
+#canvasContainer{
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  height: 100%;
+  width:100%;
+}
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 9.6vh;
+    height: 5vh;
+  }
+  
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 50%;
+  height: 100%;
+}
+
+/* The slider */
+.slider2 {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider2:before {
+  position: absolute;
+  content: "";
+  height: 4.4vh;
+  width: 4.4vh;
+  right: 4.7vh;
+  bottom: 0.3vh;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider2 {
+  background-color: #832e7c;
+}
+
+input:focus + .slider2 {
+  box-shadow: 0 0 1px #832e7c;
+}
+  
+input:checked + .slider2:before {
+  -webkit-transform: translateX(4.4vh);
+  -ms-transform: translateX(4.4vh);
+  transform: translateX(4.4vh);
+}
+
+.containerRooms{
+  background: #dddddd;
+
+  text-align: left;
+
+  overflow-y:auto;
+  overflow-x:none;
+  width: 74%;
+  max-height: 63vh;
+  float: left;
+}
+
+.containerDiscordWidget{
+  width: 25%;
+  height: 63vh;
+  float: right;
+}
+
+.room{
+  background: #bbbbbb;
+  border-radius: 0.5vw;
+  width: 100%;
+  height: 10vh;
+}
+
+.tournament{
+  background: #bbbbbb;
+  border-radius: 0.5vw;
+  width: 100%;
+  height: 10vh;
+}
+  
+.col80{
+  width: 80%;
+  height: 100%;
+  float:left;
+}
+
+.col20{
+  width: 20%;
+  height: 100%;
+  float:right;
+  position: relative;
+
+}
+
+.row50{
+  width:100%;
+  height:50%;
+  font-size:1.5vw;
+  margin-left: 2vw;
+
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+}
+
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 20% auto; /* 15% from the top and centered */
+  padding: 2vh;
+  border: 1px solid #888;
+  width: 50%; /* Could be more or less, depending on screen size */
+  font-size:1.3vmax;
+  font-family: "Tahoma", Times, serif;
+
+  position: relative;
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#usersOnline{
+  position: absolute;
+  left: 0;
+}
+
+#roomListTitleRow{
+  vertical-align: middle;
+  position: relative;
+
+  height: 10%;
+}
+
+#roomListContentRow{
+  height: 80%;
+}
+
+#roomListRefreshRow{
+  height: 10%;
+}
+
+#soundButtonContainer
+{
+  position: absolute; 
+
+  right:1vw;
+  top:1vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#cardButtonContainer
+{
+  position: absolute; 
+
+  right:1vw;
+  top:7vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#leaveRoomContainer
+{
+  position: absolute; 
+
+  left:1vw;
+  top:1vh;
+}
+
+#rebuyContainer
+{
+  position: absolute; 
+
+  left:1vw;
+  top:8vh; /*TODO*/
+}
+
+#raiseContainer
+{
+  position: absolute; 
+
+  left:1vw;
+  bottom:1vh;
+}
+
+#foldContainer
+{
+  position: absolute; 
+
+  right:1vw;
+  bottom:1vh;
+}
+
+#callContainer{
+  position: absolute;
+  right: 17vw;
+  bottom:1vh;
+}
+
+#success{
+  color: white;
+  background-color: #4dd377;
+  opacity: 1;
+
+  font-size: 3vmax;
+  text-align: center;
+
+  transition: opacity 1.5s; /* 600ms to fade out */
+
+  width: 80vw;
+  height: 10vh;
+  padding-top: 3.5vh;
+
+  position: absolute;
+  left:10vw;
+  bottom:15vh;
+
+  display: none;
+}
+
+#deposited{
+  color: #3E3E3E;
+  background-color: #4dd377;
+  opacity: 1;
+
+  text-align: center;
+
+  transition: opacity 1.5s; /* 600ms to fade out */
+  border-radius: 0.5vw;
+
+
+  width: 25vw;
+  height: 8vh;
+
+  position: absolute;
+  bottom: 82%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+
+  display: none;
+}
+
+#depositedLabel{
+  font-size: 3.5vh;
+  color: #ffffff;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+#closeDeposited{
+  color: black;
+  position: absolute;
+  top: 0.2vh;
+  right: 0.2vw;
+}
+
+.modalTitle{
+  font-size: 3vmax;
+  text-align: center;
+  height: 10vh;
+}
+
+
+
+/* Add Animation */
+@keyframes animatetop {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
+}
+
+@media (max-width: 1280px) {
+
+
+}
+
+@media (max-width: 900px) {
+  .containerTitle{
+    height: 7.5%;
+  }
+  .userWrapper{
+    position: absolute;
+    bottom: 92.5%;
+    right: 7%;
+  }
+
+  .containerPage{
+    height: 92.5%;
+  }
+
+  #roomListTitleRow{
+    height: 5%;
+  }
+
+  #roomListContentRow{
+    height: 90%;
+  }
+
+  #roomListRefreshRow{
+    height: 5%;
+  }
+
+  .modal-content {
+    width: 80%; /* Could be more or less, depending on screen size */
+  }
+
+  .sliderRaise{
+    bottom: 6vh;
+    left: 0;
+    width: 40vw;
+  }
+
+  .actionButton{
+    width: 40vw;
+  }
+
+  .navButton{
+    min-width: 20vw;
+  }
+
+  #callContainer{
+    bottom: 7vh;
+    right: 1vw;
+  }
+
+  .containerRooms{
+    width: 99%;
+  }
+  
+  .containerDiscordWidget{
+    display: none;
+  }
+
+  label{
+    font-size: 14px;
+  }
+
+  .accountButton{
+    width: 50%;
+  }
+}

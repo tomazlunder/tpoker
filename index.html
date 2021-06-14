@@ -1,0 +1,431 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>EctoPoker</title>
+  <meta name="description" content="EctoPoker">
+  <meta name="author" content="tl">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="index.css">
+
+  <link rel="shortcut icon" href="#" />
+
+
+</head>
+
+<body>
+
+  <!-- User -->
+  <div class="userWrapper" id="userWrapper">
+    <div class="userContainer">
+      <table id="tableUser">
+        <tr><td style="float: right;">
+        <b><label class="labelUser" id="home_label_user"></label></b>
+        </td></tr>
+        <tr> <td style="float: right;"><img id="imgChip" src="images/chip.png" width="21.8" height="21.8"></td>	
+        <td style="float: right;"><label class="labelUser" id="home_label_balance"></label>	</td>
+        </tr>	
+      </table id="tableUser">
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="wrapper1" id="mainWrapper">
+    <div class="containerTitle">
+      <div class="containerTitleImage">
+        <img class= "titleImage" src="./images/logo.png">
+      </div>
+    </div>  
+
+    <div class="containerPage" id="welcome">
+      <br>
+      <label>Account Name:</label><br>
+      <input type="text" id=input_welcome_name></input><br>
+      <label>Password:</label><br>
+      <input type="password" id="input_welcome_password"></input><br><br>
+      <button class ="button" onclick="welcomeLoginButton()">Log in</button>
+      <button class ="button" onclick="welcomeRegisterButton()">Register</button><br><br>
+      <label style="display: none" id="error_label_login"></label>
+    </div>  
+
+    <div class="containerPage" id="registration">
+      <br>
+      <label>Account Name:</label><br>
+      <input type="text" id="input_registration_name"></input><br>
+      <label>Password:</label><br>
+      <input type="password" id="input_registration_password"></input><br>
+      <label>Email (optional):</label><br>
+      <input type="text" id="input_registration_email"></input><br>
+      <label>Repeat Password:</label><br>
+      <input type="password" id="input_registration_repeat_password"></input><br><br>
+      <button onclick="registrationRegisterButton()">Register</button>
+      <button onclick="registrationBackButton()">Back</button><br><br>
+      <label style="display: none" id="error_label_register"></label>
+    </div>  
+
+    <div class ="containerPage" id="home">
+      <div class="containerNav">
+        <button onclick="homeRoomsButton()" class="navButton" id="homeRoomsButton" disabled >Rooms</button>
+        <button onclick="homeTournamentsButton()" class="navButton" id="homeTournamentsButton">Tournaments</button>
+
+        <button onclick="homeAccountButton()" class="navButton" id="homeAccountButton">Account</button>
+        <button onclick="homeLeaderboardButton()" class="navButton" id="homeLeaderboardButton">Leaderboard</button>
+
+        <button onclick="homeTipButton()"  class="navButton" id="buttonTip">Tip the house</button>
+
+
+        <!-- <button onclick="discordButton()" class="navButton" id="buttonDiscord">Discord</button> -->
+
+
+      </div>
+
+      <!-- rooms-->
+      <div class="containerMain" id="homeRooms">
+        <!--  <label class="labelTitle">Room List</label> -->
+        <label class="roomListRefreshRow" id="labelRoomMessage" style="display:none;">aa</label>
+        <div class="containerRooms" id="containerRooms"></div>
+        <div class="containerRooms" id="containerTournaments" style="display:none;"></div>
+        <div class="containerDiscordWidget" id="containerRooms">
+        <iframe src="https://discord.com/widget?id=817786951909638156&theme=dark" width="100%" height="100%" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+        </div>
+        <div class="clear" style="clear: both;"></div>
+
+        <button onclick="roomRefreshButton()" class="navButton"  >Refresh</button>
+      </div>
+
+      <!-- account-->
+      <div class="containerMain" id="homeAccount">
+        <label class="labelTitle" id="homeAccountName">Name.1234</label><br><br>
+          <table >
+            <tr>
+              <td class="tdAccount1"><label> Balance</label></td>
+              <td>:</td>
+              <td class="tdAccount2"><label id="homeAccountBalance"> 1 </label></td>
+            </tr>
+            <tr>
+              <td class="tdAccount1"><label> Total winnings</label></td>
+              <td>:</td>
+              <td class="tdAccount2"><label id="homeAccountWinnings"> 1 </label></td>
+            </tr>
+
+            <tr>
+              <td class="tdAccount1"><label> Total tipped</label></td>
+              <td>:</td>
+              <td class="tdAccount2"><label id="homeAccountTipped"> 2fsfa </label></td>
+            </tr>
+            <tr>
+              <td class="tdAccount1"><label> Rounds played</label></td>
+              <td>:</td>
+              <td class="tdAccount2"><label  id="homeAccountRoundsplayed"> 2fsfa </label></td>
+            </tr>
+            <tr>
+              <td class="tdAccount1"><label> Withdrawal(s) pending</label></td>
+              <td>:</td>
+              <td class="tdAccount2"><label id="homeAccountWithdrawPending"> 1asdsad </label></td>
+            </tr>
+
+          </table>
+
+          <br>
+          <button onclick="homeWithdrawButton()" class="accountButton" id="homeWithdrawButton" >Withdraw</button>
+          <button onclick="homeDepositButton()" class="accountButton" id="homeDepositButton" >Deposit</button>
+
+          <br><br>
+
+          <label class="labelTitle">Account settings</label>
+          <br><br>
+          <label id="emailLabel">Email: Not set</label> <br><br>
+          <button onclick="changeEmailButton()" class="accountButton" id="changeEmailButton" >Change email</button>
+          <br><br>
+          <button onclick="changePasswordButton()" class="accountButton" id="changePasswordButton" >Change password</button>
+
+      </div>
+
+      <!-- leaderboard-->
+      <div class="containerMain" id="homeLeaderboard" style="display:none;">
+        <button class="navButton" id="leaderboardTotalButton" onclick="leaderboardTotalButton()" disabled>Total</button>
+        <button class = "navButton"  onclick="leaderboardTourButton()" id="leaderboardTourButton"> Tournaments </button>
+        <br><br>
+          <table id="tableLeaderboard" ><tbody id="totalBody"></tbody></table>
+          <table id="tableTourLeaderboard" style="display:none;" ><tbody id="tourBody"></tbody></table>
+      </div>      
+
+      <div class="containerFoot">
+        <label id="usersOnline"></label>
+        <button onclick="buttonAdminMode()"  class="navButton" id="buttonAdminMode" style="display: none;">Admin mode</button>
+        <button onclick="homeLogoffButton()"  class="navButton" id="homeLogOffButton">Log off</button>
+
+      </div>  
+    </div>
+
+    <div class="containerPage" id="game">
+      <div id="canvasContainer">
+        <canvas width=1800 height=1200 id="canvas"></canvas>
+      </div>
+
+      <div id = "leaveRoomContainer">	
+        <button class="actionButton" onclick="homeLeaveRoom()" id="homeLeaveRoomButton">Leave Room</button>
+      </div>
+
+      <div id = "rebuyContainer">	
+        <button class="actionButton" onclick="homeRebuyButton()" id="homeRebuyButton">Rebuy</button>
+      </div>
+
+      <div id="soundButtonContainer">
+        <label style="margin: 2vh;">Sound</label>
+        <label class="switch">
+          <input id="soundCheckbox" type="checkbox" checked onclick="soundCheckboxClicked()">
+          <span class="slider2"></span>
+        </label>
+      </div>
+
+      <div id="cardButtonContainer">
+        <label style="margin: 2vh;">Card</label>
+        <label class="switch">
+          <input id="cardCheckbox" type="checkbox" checked onclick="cardCheckboxClicked()">
+          <span class="slider2"></span>
+        </label>
+      </div>
+
+      <div id = "raiseContainer">
+        <button class="actionButton" id="homeRaiseButton" onclick="homeRaiseButton()" disabled>Raise</button>
+        <input type="range"  id="raiseRange" class="sliderRaise" name="raise" min="0" max="0" oninput="rangeChange()" onchange="rangeChange()">
+      </div>
+
+      <div id = "callContainer">
+        <button class="actionButton" id="homeCallButton" onclick="homeCallButton()" disabled>Check/Call</button>
+      </div>
+
+      <div id = "foldContainer">
+        <button class="actionButton" id="homeFoldButton" onclick="homeFoldButton()" disabled>Fold</button>
+      </div>
+
+    </div> 
+  </div>
+
+  <!-- Modal BuyIn -->
+  <div id="modalBuyIn" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeBuyIn">&times;</span>
+      <div class="modalTitle">Buy-in</div>
+      <input type="range"  id="buyInRange" class="sliderBuyIn" name="raise" min="0" max="50" oninput="rangeBuyinChange()">
+      <input type="number" id="buyInNumberField"  oninput="numberBuyinChange()" onkeydown="return false"></input>
+      <button id="modalBuyInButton" class="modalButton">BUY IN</button>
+    </div>
+  </div>
+
+  <!-- Modal Rebuy -->
+  <div id="modalRebuy" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeRebuy">&times;</span>
+      <div class="modalTitle">Rebuy</div>
+      <input type="range"  id="rebuyRange" class="sliderBuyIn" name="raise" min="0" max="50" oninput="rangeRebuyChange()">
+      <input type="number" id="rebuyNumberField"  oninput="numberRebuyChange()" onkeydown="return false" ></input>
+      <button id="modalRebuyButton" class="modalButton" onclick="modalRebuyClicked()">Rebuy</button>
+    </div>
+  </div>
+
+  <!-- Modal Withdraw -->
+  <div id="modalWithdraw" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeWithdraw">&times;</span>
+      <div class="modalTitle">Withdraw</div>
+      <input type="range"  id="withdrawRange" class="sliderBuyIn" name="raise" min="0" max="50" oninput="rangeWithdrawChange()">
+      <input type="number" id="withdrawNumberField"  oninput="numberWithdrawChange()" onkeydown="return false" ></input>
+      <button id="modalWithdrawButton" class="modalButton" onclick="modalWithdrawClicked()">Withdraw</button>
+    </div>
+  </div>
+
+    <!-- Modal Deposit -->
+  <div id="modalDeposit" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeDeposit">&times;</span>
+      <div class="modalTitle">Deposit</div>
+      <input type="range"  id="depositRange" class="sliderBuyIn" name="raise" min="0" max="50" oninput="rangeDepositChange()">
+      <input type="number" id="depositNumberField"  oninput="numberDepositChange()" onkeydown="return false" ></input>
+      <button id="modalDepositButton" class="modalButton" onclick="modalDepositClicked()">Deposit</button>
+    </div>
+  </div>
+
+  <!-- Modal Tip -->
+  <div id="modalTip" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeTip">&times;</span>
+      <div class="modalTitle">Tip the house</div>
+      <input type="range"  id="tipRange" class="sliderBuyIn" name="raise" min="0" max="50" oninput="rangeTipChange()">
+      <input type="number" id="tipNumberField"  oninput="numberTipChange()" onkeydown="return false" ></input>
+      <button id="modalTipButton" class="modalButton" onclick="modalTipClicked()">Tip</button>
+    </div>
+  </div>
+
+  <!-- Modal Email -->
+  <div id="modalEmail" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeEmail">&times;</span>
+      <div class="modalTitle">Change email</div>
+      <input type="text" id="emailTextField"></input>
+      <button id="modalEmailButton" class="modalButton" onclick="modalEmailClicked()">Change</button>
+      <br>
+      <label id="errorLabelModalEmail"></label>
+    </div>
+  </div>
+
+  <!-- Modal passwrod -->
+  <div id="modalPassword" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closePassword">&times;</span>
+      <div class="modalTitle">Change password</div>
+      <input type="password" id="password1"></input>
+      <input type="password" id="password2"></input>
+
+      <button id="modalPasswordButton" class="modalButton" onclick="modalPasswordClicked()">Change</button>
+      <br>
+      <label id="errorLabelModalPassword"></label>
+    </div>
+  </div>
+
+  <!-- Modal tournamentResults -->
+  <div id="modalTourResults" class="modal" style="display:none">
+    <div class="modal-content" id="modal-content">
+      <span class="close" id = "closeTourResults">&times;</span>
+      <div class="modalTitle">Tournament results</div>
+      <br>
+      <div id= "modalTourResultsContent"></div>
+      <br>
+      <button id="modalTourResultsButton" class="Button" onclick="modalTourResultsClicked()">Leave</button>
+    </div>
+  </div>
+
+  <div id="success"> </div>
+  <div id="deposited"> 
+    <div id="depositedLabel">test</div>
+    <span class="close" id = "closeDeposited">&times;</span>
+  </div>
+
+</body>
+
+
+<img class="res" src="images/table.png" id="img_table">
+<img class="res" src="images/player_border.png" id="img_player_border">
+
+<img class="res" src="images/cards/BACK.png" id="img_back">
+
+<img class="res" src="images/cards/s_2H.png"  id="s_img_2h">
+<img class="res"  src="images/cards/s_3H.png" id="s_img_3h">
+<img class="res" src="images/cards/s_4H.png" id="s_img_4h">
+<img class="res" src="images/cards/s_5H.png" id="s_img_5h">
+<img class="res" src="images/cards/s_6H.png" id="s_img_6h">
+<img class="res" src="images/cards/s_7H.png" id="s_img_7h">
+<img class="res" src="images/cards/s_8H.png" id="s_img_8h">
+<img class="res" src="images/cards/s_9H.png" id="s_img_9h">
+<img class="res" src="images/cards/s_10H.png" id="s_img_Th">
+<img class="res" src="images/cards/s_JH.png" id="s_img_Jh">
+<img class="res" src="images/cards/s_QH.png" id="s_img_Qh">
+<img class="res" src="images/cards/s_KH.png" id="s_img_Kh">
+<img class="res" src="images/cards/s_AH.png" id="s_img_Ah">
+
+<img class="res" src="images/cards/s_2D.png" id="s_img_2d">
+<img class="res" src="images/cards/s_3D.png" id="s_img_3d">
+<img class="res" src="images/cards/s_4D.png" id="s_img_4d">
+<img class="res" src="images/cards/s_5D.png" id="s_img_5d">
+<img class="res" src="images/cards/s_6D.png" id="s_img_6d">
+<img class="res" src="images/cards/s_7D.png" id="s_img_7d">
+<img class="res" src="images/cards/s_8D.png" id="s_img_8d">
+<img class="res" src="images/cards/s_9D.png" id="s_img_9d">
+<img class="res" src="images/cards/s_10D.png" id="s_img_Td">
+<img class="res" src="images/cards/s_JD.png" id="s_img_Jd">
+<img class="res" src="images/cards/s_QD.png" id="s_img_Qd">
+<img class="res" src="images/cards/s_KD.png" id="s_img_Kd">
+<img class="res" src="images/cards/s_AD.png" id="s_img_Ad">
+
+<img class="res"  src="images/cards/s_2S.png" id="s_img_2s">
+<img class="res"  src="images/cards/s_3S.png" id="s_img_3s">
+<img class="res" src="images/cards/s_4S.png" id="s_img_4s">
+<img class="res" src="images/cards/s_5S.png" id="s_img_5s">
+<img class="res" src="images/cards/s_6S.png" id="s_img_6s">
+<img class="res" src="images/cards/s_7S.png" id="s_img_7s">
+<img class="res" src="images/cards/s_8S.png" id="s_img_8s">
+<img class="res" src="images/cards/s_9S.png" id="s_img_9s">
+<img class="res" src="images/cards/s_10S.png" id="s_img_Ts">
+<img class="res" src="images/cards/s_JS.png" id="s_img_Js">
+<img class="res" src="images/cards/s_QS.png" id="s_img_Qs">
+<img class="res" src="images/cards/s_KS.png" id="s_img_Ks">
+<img class="res" src="images/cards/s_AS.png" id="s_img_As">
+
+<img class="res" src="images/cards/s_2C.png" id="s_img_2c">
+<img class="res" src="images/cards/s_3C.png" id="s_img_3c">
+<img class="res" src="images/cards/s_4C.png" id="s_img_4c">
+<img class="res" src="images/cards/s_5C.png" id="s_img_5c">
+<img class="res" src="images/cards/s_6C.png" id="s_img_6c">
+<img class="res" src="images/cards/s_7C.png" id="s_img_7c">
+<img class="res" src="images/cards/s_8C.png" id="s_img_8c">
+<img class="res" src="images/cards/s_9C.png" id="s_img_9c">
+<img class="res" src="images/cards/s_10C.png" id="s_img_Tc">
+<img class="res" src="images/cards/s_JC.png" id="s_img_Jc">
+<img class="res" src="images/cards/s_QC.png" id="s_img_Qc">
+<img class="res" src="images/cards/s_KC.png" id="s_img_Kc">
+<img class="res" src="images/cards/s_AC.png" id="s_img_Ac">
+
+
+<img class="res" src="images/cards/2H.png"  id="img_2h">
+<img class="res"  src="images/cards/3H.png" id="img_3h">
+<img class="res" src="images/cards/4H.png" id="img_4h">
+<img class="res" src="images/cards/5H.png" id="img_5h">
+<img class="res" src="images/cards/6H.png" id="img_6h">
+<img class="res" src="images/cards/7H.png" id="img_7h">
+<img class="res" src="images/cards/8H.png" id="img_8h">
+<img class="res" src="images/cards/9H.png" id="img_9h">
+<img class="res" src="images/cards/10H.png" id="img_Th">
+<img class="res" src="images/cards/JH.png" id="img_Jh">
+<img class="res" src="images/cards/QH.png" id="img_Qh">
+<img class="res" src="images/cards/KH.png" id="img_Kh">
+<img class="res" src="images/cards/AH.png" id="img_Ah">
+
+<img class="res" src="images/cards/2D.png" id="img_2d">
+<img class="res" src="images/cards/3D.png" id="img_3d">
+<img class="res" src="images/cards/4D.png" id="img_4d">
+<img class="res" src="images/cards/5D.png" id="img_5d">
+<img class="res" src="images/cards/6D.png" id="img_6d">
+<img class="res" src="images/cards/7D.png" id="img_7d">
+<img class="res" src="images/cards/8D.png" id="img_8d">
+<img class="res" src="images/cards/9D.png" id="img_9d">
+<img class="res" src="images/cards/10D.png" id="img_Td">
+<img class="res" src="images/cards/JD.png" id="img_Jd">
+<img class="res" src="images/cards/QD.png" id="img_Qd">
+<img class="res" src="images/cards/KD.png" id="img_Kd">
+<img class="res" src="images/cards/AD.png" id="img_Ad">
+
+<img class="res"  src="images/cards/2S.png" id="img_2s">
+<img class="res"  src="images/cards/3S.png" id="img_3s">
+<img class="res" src="images/cards/4S.png" id="img_4s">
+<img class="res" src="images/cards/5S.png" id="img_5s">
+<img class="res" src="images/cards/6S.png" id="img_6s">
+<img class="res" src="images/cards/7S.png" id="img_7s">
+<img class="res" src="images/cards/8S.png" id="img_8s">
+<img class="res" src="images/cards/9S.png" id="img_9s">
+<img class="res" src="images/cards/10S.png" id="img_Ts">
+<img class="res" src="images/cards/JS.png" id="img_Js">
+<img class="res" src="images/cards/QS.png" id="img_Qs">
+<img class="res" src="images/cards/KS.png" id="img_Ks">
+<img class="res" src="images/cards/AS.png" id="img_As">
+
+<img class="res" src="images/cards/2C.png" id="img_2c">
+<img class="res" src="images/cards/3C.png" id="img_3c">
+<img class="res" src="images/cards/4C.png" id="img_4c">
+<img class="res" src="images/cards/5C.png" id="img_5c">
+<img class="res" src="images/cards/6C.png" id="img_6c">
+<img class="res" src="images/cards/7C.png" id="img_7c">
+<img class="res" src="images/cards/8C.png" id="img_8c">
+<img class="res" src="images/cards/9C.png" id="img_9c">
+<img class="res" src="images/cards/10C.png" id="img_Tc">
+<img class="res" src="images/cards/JC.png" id="img_Jc">
+<img class="res" src="images/cards/QC.png" id="img_Qc">
+<img class="res" src="images/cards/KC.png" id="img_Kc">
+<img class="res" src="images/cards/AC.png" id="img_Ac">
+
+<script src = "/socket.io/socket.io.js"></script>
+<script src = "/index.js"></script>
+</html>
