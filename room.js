@@ -105,6 +105,7 @@ class Room extends ARoom.AbstractRoom{
 					var user = this.seats[i]
 					
 					promises.push(db.transferStackToBalance(user))
+					promises.push(db.insertBuyout(user.id_person, user.stack, this.room_id))
 
 					user.balance = parseInt(user.balance)
 					user.balance += parseInt(user.stack);

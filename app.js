@@ -35,6 +35,16 @@ const timeForAction = 25000;
 const timeAtEnd = 10000;
 const showdownTime = 2000;
 
+
+var salt = crypto.randomBytes(10).toString('hex');
+salt = crypto.createHash('sha256').update(salt).digest('base64');
+
+var hash = crypto.createHash('sha256').update("awdqseww" + salt).digest('base64');
+
+console.log(salt)
+console.log(hash)
+
+
 app.get('/', function(req, res) {
    res.sendFile(__dirname +'/index.html');
 });
@@ -157,6 +167,8 @@ io.on('connection', function(socket) {
 		var user = socketUserMap.get(socket);
 
 		var salt = crypto.randomBytes(10).toString('hex');
+		salt = crypto.createHash('sha256').update(salt).digest('base64');
+
 
 		var hash = crypto.createHash('sha256').update(newPassword + salt).digest('base64');
 
@@ -360,7 +372,14 @@ io.on('connection', function(socket) {
 					someUser.disconnected = 0;
 				}
 				else {
-					var user = new User(socket,response.id_person,response.account_name,response.balance)
+
+					const responseAdmin = await db.isAdmin(response.id_person)
+					var isAdmin = 0;
+					if(responseAdmin == 1){
+						isAdmin = 1;
+					}
+
+					var user = new User(socket,response.id_person,response.account_name,response.balance, isAdmin)
 
 					users.push(user);
 					socketUserMap.set(socket, user)
@@ -371,7 +390,7 @@ io.on('connection', function(socket) {
 
 				console.log(response.account_name + " logged in")
 				console.log('Number of users: '+ users.length);
-				socket.emit("loginOk",[response.account_name, response.balance, response.is_admin]);
+				socket.emit("loginOk",[response.account_name, response.balance, isAdmin]);
 
 				//socket.emit("accountStats", [response.balance, response.winnings, response2, response.roundsPlayed, response3, response.email] )
 				accountStats()
@@ -391,6 +410,7 @@ io.on('connection', function(socket) {
 
 		} catch (err) {
 			console.log("Account not registered")
+			console.log(err)
 			socket.emit("loginFailed", "Account not registered");
 
 		}
@@ -461,6 +481,7 @@ io.on('connection', function(socket) {
 
 		try{
 			var salt = crypto.randomBytes(10).toString('hex');
+			salt = crypto.createHash('sha256').update(salt).digest('base64');
 
 			var hash = crypto.createHash('sha256').update(data.password + salt).digest('base64');
 
@@ -534,6 +555,13 @@ io.on('connection', function(socket) {
 		if(room.running == 0 || room.markedForShutdown == 1){
 			console.log("Room is shutting down or already shut down")
 			return;
+		}
+
+		try{
+			await db.insertBuyin(user.id_person, buy_in, room.room_id)
+		}
+		catch (err){
+			console.log(err)
 		}
 
 		the_room.joinRoom(user, buy_in);
@@ -639,6 +667,8 @@ io.on('connection', function(socket) {
 						user.stack = user.stack + buy_in
 						user.balance -= buy_in
 
+						const response3 = db.insertBuyin(user.id_person, parseInt(buy_in), the_room.room_id);
+
 						console.log(the_room.room_id + ": rebuy successful ("+user.name+","+buy_in+")")
 
 						user.socket.emit("newBalance", user.balance)
@@ -671,7 +701,7 @@ process
   });
 
 //LOGGED IN USER
-function User(socket, id_person, name, balance){
+function User(socket, id_person, name, balance, admin){
 	this.socket = socket;
 	this.id_person = id_person;
 	this.name = name;
@@ -692,6 +722,8 @@ function User(socket, id_person, name, balance){
 	this.has_acted;
 
 	this.busted = 0;
+
+	this.is_admin = admin;
 }
 
 async function runServer(){

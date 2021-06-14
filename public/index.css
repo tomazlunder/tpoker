@@ -520,7 +520,7 @@ input:checked + .slider2:before {
   float: left;
 }
 
-.containerDiscordWidget{
+.containerNews{
   width: 25%;
   height: 63vh;
   float: right;

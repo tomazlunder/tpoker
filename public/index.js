@@ -86,7 +86,7 @@ withdrawRange = document.getElementById("withdrawRange");
 depositRange = document.getElementById("depositRange")
 tipRange =  document.getElementById("tipRange")
 
-cardType = ""
+cardType = "s_"
 
 
 document.addEventListener("DOMContentLoaded", function(event){
@@ -1531,16 +1531,6 @@ function soundCheckboxClicked(){
         mute = 1;
     }
 }
-
-function cardCheckboxClicked(){
-    if(cardType == ""){
-        cardType = "s_";
-    } else {
-        cardType = ""
-    }
-    drawGame();
-}
-
 
 function homeFoldButton() {
     console.log("Emitted: actionRequest(fold)")

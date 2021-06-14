@@ -269,7 +269,7 @@ function transferStackToBalance(user){
 
 function changeWinnings(id_person, change_by){
     return new Promise((resolve,reject) => {    
-        var query = con.query("UPDATE person SET winnings = winnings + ?, roundsPlayed = roundsPlayed + 1 WHERE id_person = ?",
+        var query = con.query("UPDATE person SET rounds_total = rounds_total + ?, rounds_played = rounds_played + 1 WHERE id_person = ?",
             [change_by, id_person],
             function(err, result){
                 if (err) {
@@ -291,7 +291,7 @@ function changeWinnings(id_person, change_by){
 
 function changeTourWinnings(id_person, change_by){
     return new Promise((resolve,reject) => {    
-        var query = con.query("UPDATE person SET tour_winnings = tour_winnings + ?, tour_played = tour_played + 1 WHERE id_person = ?",
+        var query = con.query("UPDATE person SET tours_total = tours_total + ?, tours_played = tours_played + 1 WHERE id_person = ?",
             [change_by, id_person],
             function(err, result){
                 if (err) {
@@ -343,6 +343,58 @@ function insertDeposit(id_person, amount){
                 1,
                 amount,
                 1],
+            function(err, result){
+                if (err) {
+                    console.log(err)
+                    reject()
+                }
+                console.log(query.sql); 
+                //console.log(result);
+                if(result.affectedRows == 1){
+                    //console.log("Created withdraw.")
+                    resolve()
+                }else{
+                    reject()
+                }
+            }
+        );
+    });
+}
+
+function insertBuyin(id_person, amount, note){
+    return new Promise((resolve,reject) => {    
+        var query = con.query("INSERT INTO transaction(fk_person, fk_type, amount, completed, note) VALUE (?,?,?,?,?)",
+            [id_person,
+                4,
+                amount,
+                1,
+                note],
+            function(err, result){
+                if (err) {
+                    console.log(err)
+                    reject()
+                }
+                console.log(query.sql); 
+                //console.log(result);
+                if(result.affectedRows == 1){
+                    //console.log("Created withdraw.")
+                    resolve()
+                }else{
+                    reject()
+                }
+            }
+        );
+    });
+}
+
+function insertBuyout(id_person, amount, note){
+    return new Promise((resolve,reject) => {    
+        var query = con.query("INSERT INTO transaction(fk_person, fk_type, amount, completed, note) VALUE (?,?,?,?,?)",
+            [id_person,
+                5,
+                amount,
+                1,
+                note],
             function(err, result){
                 if (err) {
                     console.log(err)
@@ -483,6 +535,32 @@ function topTenTourWinnings(){
     });
 }
 
+function isAdmin(id_person){
+    return new Promise((resolve,reject) => {    
+        var query = con.query("SELECT * FROM admin_account WHERE fk_person = ?;",
+            [id_person],
+            function(err, result){
+                if (err) {
+                    console.log(err)
+                    reject()
+                }
+                console.log(query.sql)
+                console.log(result)
+                if(result.length == 1){
+                    resolve(1)
+                    console.log("Admin")
+                }
+                else{
+                    resolve(0)
+                    console.log("Not admin")
+                }
+            }
+        );
+    });
+}
+
+
+
 module.exports = connectDatabase();
 
 module.exports.getPerson = getPerson;
@@ -509,6 +587,9 @@ module.exports.insertDeposit = insertDeposit;
 module.exports.increaseDeposited = increaseDeposited;
 module.exports.resetDeposited = resetDeposited;
 
+module.exports.isAdmin = isAdmin;
+module.exports.insertBuyin = insertBuyin;
+module.exports.insertBuyout = insertBuyout;
 
 
 
