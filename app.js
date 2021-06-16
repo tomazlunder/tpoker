@@ -3,9 +3,22 @@ var express = require('express');
 var path = require('path');
 var app = express();
 
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+//var http = require('http').Server(app);
+//var io = require('socket.io')(http);
 var crypto = require('crypto');
+
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
+
+server = https.createServer(options, app);
+
+//var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 
 // Express Middleware for serving static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -29,12 +42,6 @@ var users = []
 var rooms = []
 
 const removeDisconnectedUsersTime = 5000;
-const checkForDepositTime = 2 * 60 * 1000;
-
-const timeForAction = 25000;
-const timeAtEnd = 10000;
-const showdownTime = 2000;
-
 
 var salt = crypto.randomBytes(10).toString('hex');
 salt = crypto.createHash('sha256').update(salt).digest('base64');
@@ -52,23 +59,27 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
 	console.log('Someone connected');
 
-	socket.on('login', login);
 	socket.on('disconnect', disconnect);
+	socket.on('login', login);
 	socket.on('registration', registration);
+	socket.on('withdraw', withdraw);
+	socket.on('deposit', deposit)
+	socket.on('tip', tip);
+
+	socket.on('accountStats', accountStats);
+	socket.on('getLeaderboard', getLeaderboard);
+	socket.on('lookingForRooms',lookingForRooms)
+
+
 	socket.on('joinRoom', joinRoom);
 	socket.on('joinTournament', joinTournament);
 	socket.on('rebuyRoom', rebuyRoom);
 	socket.on('leaveRoom',leaveRoom)
-	socket.on('lookingForRooms',lookingForRooms)
 	socket.on('actionRequest', actionRequest);
-	socket.on('withdraw', withdraw);
-	socket.on('deposit', deposit)
-	socket.on('tip', tip);
 	socket.on('reconnect', reconnect);
-	socket.on('accountStats', accountStats);
+
 	socket.on('changePassword', changePassword);
 	socket.on('changeEmail', changeEmail);
-	socket.on('getLeaderboard', getLeaderboard);
 	socket.on('adminRoomStop', adminRoomStop);
 	socket.on('adminRoomStart', adminRoomStart);
 
@@ -687,9 +698,9 @@ io.on('connection', function(socket) {
 	
 });
 
-http.listen(process.env.PORT || 3000, function() {
-   console.log('listening on *:3000');
-});
+//http.listen(process.env.PORT || 3000, function() {
+//   console.log('listening on *:3000');
+//});
 
 process
   .on('unhandledRejection', (reason, p) => {
@@ -783,36 +794,12 @@ async function runServer(){
 			}
 		}, removeDisconnectedUsersTime);
 
-		setInterval(async function(){
-			console.log("Deposit check skipped (no users online)");
-			if(users.length > 0){
-				try{
-					const dc = await depositCheck();
-					console.log("Deposit check succeded.")
-				} catch (err){
-					console.log("Deposit check failed.")
-				}
-			}
-		}, checkForDepositTime)
-
-
 	} catch (err) {
 		console.log("[SERVER] CRITICAL ERROR")
 		console.log(err)
 	}
 }
 
-checkForDeposits = async function(){
-	console.log("Deposit check skipped (no users online)");
-	if(users.length > 0){
-		try{
-			const dc = await depositCheck();
-			console.log("Deposit check succeded.")
-		} catch (err){
-			console.log("Deposit check failed.")
-		}
-	}
-}
-
 runServer();
 
+server.listen(8000);

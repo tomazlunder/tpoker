@@ -393,14 +393,14 @@ canvas{
   appearance: none;
   width: 4vh; /* Set a specific slider handle width */
   height: 4vh; /* Slider handle height */
-  background:  #832e7c; /* Green background */
+  background:  #408cd3; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
 
 .sliderBuyIn::-moz-range-thumb {
   width: 2vh; /* Set a specific slider handle width */
   height: 2vh; /* Slider handle height */
-  background: #832e7c; /* Green background */
+  background: #408cd3; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
 
@@ -425,14 +425,14 @@ canvas{
   appearance: none;
   width: 4vh; /* Set a specific slider handle width */
   height: 4vh; /* Slider handle height */
-  background:  #832e7c; /* Green background */
+  background:  #408cd3; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
 
 .sliderRaise::-moz-range-thumb {
   width: 2vh; /* Set a specific slider handle width */
   height: 2vh; /* Slider handle height */
-  background: #832e7c; /* Green background */
+  background: #408cd3; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
 
@@ -495,11 +495,11 @@ canvas{
 }
 
 input:checked + .slider2 {
-  background-color: #832e7c;
+  background-color: #408cd3;
 }
 
 input:focus + .slider2 {
-  box-shadow: 0 0 1px #832e7c;
+  box-shadow: 0 0 1px #408cd3;
 }
   
 input:checked + .slider2:before {
@@ -515,13 +515,13 @@ input:checked + .slider2:before {
 
   overflow-y:auto;
   overflow-x:none;
-  width: 74%;
+  width: 100%;
   max-height: 63vh;
   float: left;
 }
 
 .containerNews{
-  width: 25%;
+  width: 0%;
   height: 63vh;
   float: right;
 }

@@ -1,4 +1,6 @@
+//var socket = io.connect('https://localhost:8000', {rejectUnauthorized: false});
 var socket = io();
+socket.rejectUnauthorized = false;
 var canvas = document.getElementById('canvas');
 
 var audio_notify = new Audio('audio/notify.wav');
@@ -1726,23 +1728,14 @@ function drawProfile(x,y,id){
         var cardWidth = cardHeight * 0.65;
 
         if(showdown[id]){
-            //img1 = document.getElementById(cardType + "img_" + showdown[id][0])
-            //img2 = document.getElementById(cardType + "img_" + showdown[id][1])
             drawCard(showdown[id][0], x + border_width/2- cardWidth - width * 0.005, y - height*0.11, cardWidth, cardHeight)
             drawCard(showdown[id][1], x + border_width/2 + width * 0.005, y - height*0.11, cardWidth, cardHeight)
         }
         else {
-            //img1 = document.getElementById("img_back")
-            //img2 = img1
             drawCard(null, x + border_width/2- cardWidth - width * 0.005, y - height*0.11, cardWidth, cardHeight)
             drawCard(null, x + border_width/2 + width * 0.005, y - height*0.11, cardWidth, cardHeight)
         }
 
-        //ctx.drawImage(img1,x + border_width/2- cardWidth - width * 0.005, y - height*0.11, cardWidth, cardHeight)
-        //ctx.drawImage(img2,x + border_width/2 + width * 0.005, y - height*0.11, cardWidth, cardHeight)
-
-        //drawCard(showdown[id][0], x + border_width/2- cardWidth - width * 0.005, y - height*0.11, cardWidth, cardHeight)
-        //drawCard(showdown[id][1], x + border_width/2 + width * 0.005, y - height*0.11, cardWidth, cardHeight)
     }
 
     var border_img = document.getElementById("img_player_border")
@@ -1762,15 +1755,13 @@ function drawProfile(x,y,id){
     }
 
     ctx.font = "40px Tahoma";
-    ctx.fillText(playerNames[id].slice(0, -5) , x + 0.01*width, y + 0.04*height);
+    ctx.fillText(playerNames[id], x + 0.01*width, y + 0.04*height);
 
     var radious = border_height/3;
 
     var percentage = timeToAct/startTime;
 
     if(playerToAct == playerNames[id] & state == 1){
-        //drawTimer(x-radious*1.5,y+cardHeight/4,radious);
-        //drawTimer(x-(radious),y+(border_height/2),radious, 42);
         ctx.fillStyle = getGreenRedPercentage(1-percentage);
         ctx.fillRect(x + border_width*0.05, y + border_height * 0.8,border_width*0.9 * percentage, border_height *0.1)
     }
@@ -1789,17 +1780,14 @@ function drawProfile(x,y,id){
 
         var betWidth = ctx.measureText(playerBets[id]).width;
 
-        //ctx.strokeText(playerBets[id], x + border_width - 0.01*width - betWidth, y + 0.10*height);
         ctx.fillText(playerBets[id], x + border_width  - 0.01*width -  betWidth, y + 0.10*height);
     }
 
     if(state >= 2 & playerResults[id]>0){
         ctx.font = "60px Tahoma";
 
-        //ctx.fillStyle = "#339966";
         ctx.fillStyle = "#17FF00";
 
-        //ctx.strokeText("+"+playerResults[id], x + 0.01*width + stackWidth, y + 0.10*height);
         ctx.fillText("+"+playerResults[id], x + 0.01*width + stackWidth, y + 0.10*height);
     }
 }
@@ -1865,34 +1853,6 @@ function drawPlayers(){
 
 function drawMyCards(){
     if(myCards.length > 0){
-        /*
-        var canvas = document.getElementById("canvas");
-        var width = canvas.width;
-        var height = canvas.height;
-
-        var ctx = canvas.getContext("2d");
-        var img1 = document.getElementById(cardType + "img_" + myCards[0])
-        var img2 = document.getElementById(cardType + "img_" + myCards[1])
-
-        var cardHeight = height*0.18;
-        var cardWidth = cardHeight * 0.65;
-
-        /*
-        if(!playerAlive[0]){
-            ctx.globalAlpha = 0.5
-        }
-
-        ctx.drawImage(img1,width * 0.5 - cardWidth - width * 0.005, height * 0.67, cardWidth, cardHeight)
-        ctx.drawImage(img2,width * 0.5 + width * 0.005, height * 0.67, cardWidth, cardHeight)
-
-        ctx.globalAlpha = 1
-        
-       if(playerAlive[0]){
-            ctx.drawImage(img1,width * 0.5 - cardWidth - width * 0.005, height * 0.67, cardWidth, cardHeight)
-            ctx.drawImage(img2,width * 0.5 + width * 0.005, height * 0.67, cardWidth, cardHeight)
-       }
-       */
-       
         if(playerAlive[0]){
             var canvas = document.getElementById("canvas");
             var width = canvas.width;
