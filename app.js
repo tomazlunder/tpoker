@@ -1,77 +1,71 @@
-//var app = require('express')();
 var express = require('express');
-var path = require('path');
 var app = express();
 
-//var http = require('http').Server(app);
-//var io = require('socket.io')(http);
 var crypto = require('crypto');
-
 const https = require('https');
 const fs = require('fs');
-
-const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
-};
-
-server = https.createServer(options, app);
-server.listen(3000);
-
-//var io = require('socket.io').listen(server);
-var io = require('socket.io')(server);
-
-// Express Middleware for serving static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-let socketUserMap = new Map()
-let pidRoomMap = new Map()
-let roomidRoomMap = new Map()
+var path = require('path');
 
 var db = require('./db.js');
 var Room = require('./room.js');
 var Tournament = require('./tournament.js');
 
+//Options for running HTTPS
+const options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
+
+//Creating a server
+server = https.createServer(options, app);
+server.listen(3000);
+
+//Socket.IO
+var io = require('socket.io')(server);
+
+//Express Middleware for serving static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 
-const { RSA_PKCS1_PADDING } = require('constants');
-const { Socket } = require('dgram');
-const { REPL_MODE_SLOPPY } = require('repl');
+//Aplication variables
+let socketUserMap = new Map()
+let pidRoomMap = new Map()
+let roomidRoomMap = new Map()
 
-//Server vars
 var users = []
 var rooms = []
 
 const removeDisconnectedUsersTime = 5000;
 
-var salt = crypto.randomBytes(10).toString('hex');
-salt = crypto.createHash('sha256').update(salt).digest('base64');
+//const { RSA_PKCS1_PADDING } = require('constants');
+//const { Socket } = require('dgram');
+//const { REPL_MODE_SLOPPY } = require('repl');
 
-var hash = crypto.createHash('sha256').update("awdqseww" + salt).digest('base64');
-
-console.log(salt)
-console.log(hash)
-
-
+//Serving front-end files
 app.get('/', function(req, res) {
    res.sendFile(__dirname +'/public/index.html');
 });
 
+//Socket.io message handling
 io.on('connection', function(socket) {
 	console.log('Someone connected');
 
+	//Account actions
 	socket.on('disconnect', disconnect);
 	socket.on('login', login);
 	socket.on('registration', registration);
 	socket.on('withdraw', withdraw);
 	socket.on('deposit', deposit)
 	socket.on('tip', tip);
+	socket.on('changePassword', changePassword);
+	socket.on('changeEmail', changeEmail);
 
+	//Get something
 	socket.on('accountStats', accountStats);
 	socket.on('getLeaderboard', getLeaderboard);
 	socket.on('lookingForRooms',lookingForRooms)
 
-
+	//Joining and playing game
 	socket.on('joinRoom', joinRoom);
 	socket.on('joinTournament', joinTournament);
 	socket.on('rebuyRoom', rebuyRoom);
@@ -79,11 +73,9 @@ io.on('connection', function(socket) {
 	socket.on('actionRequest', actionRequest);
 	socket.on('reconnect', reconnect);
 
-	socket.on('changePassword', changePassword);
-	socket.on('changeEmail', changeEmail);
+	//Admin actions
 	socket.on('adminRoomStop', adminRoomStop);
 	socket.on('adminRoomStart', adminRoomStart);
-
 
 	function adminRoomStop(room_id){
 		if(!socketUserMap.has(socket)){
@@ -745,10 +737,6 @@ io.on('connection', function(socket) {
 	
 });
 
-//http.listen(process.env.PORT || 3000, function() {
-//   console.log('listening on *:3000');
-//});
-
 process
   .on('unhandledRejection', (reason, p) => {
     console.error(reason, 'Unhandled Rejection at Promise', p);
@@ -809,6 +797,11 @@ async function runServer(){
 		var room3 = new Room.Room(io, "room3", "Room 3", 6, pidRoomMap,  2, 80, 200)
 		var room4 = new Room.Room(io, "room4", "Room 4", 6, pidRoomMap,  2, 160, 400)
 
+		var room5 = new Room.Room(io, "room5", "Room 5", 6, pidRoomMap,  2, 160, 400)
+		var room6 = new Room.Room(io, "room6", "Room 6", 6, pidRoomMap,  2, 160, 400)
+		var room7 = new Room.Room(io, "room7", "Room 7", 6, pidRoomMap,  2, 160, 400)
+
+
 		var tour1 = new Tournament.Tournament(io, "tour1", "Small auto tournament", 3, pidRoomMap, 5, 50, 500, 1000 * 60 * 2, [100,50,0], 1)
 
 		rooms.push(room1)
@@ -816,6 +809,14 @@ async function runServer(){
 		rooms.push(room3)
 		rooms.push(room4)
 		rooms.push(tour1)
+
+		rooms.push(room5)
+		rooms.push(room6)
+		rooms.push(room7)
+		roomidRoomMap.set("room5", room5);
+		roomidRoomMap.set("room5", room6);
+		roomidRoomMap.set("room6", room7);
+
 
 		roomidRoomMap.set("room1", room1);
 		roomidRoomMap.set("room2", room2);

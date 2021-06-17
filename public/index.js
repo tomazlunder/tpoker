@@ -1145,9 +1145,6 @@ function leaderboardTotalButton(){
     document.getElementById("tableLeaderboard").style.display = 'table';
 
     document.getElementById("totalBody").style.width = '100%';
-
-
-
 }
 
 function leaderboardTourButton(){
@@ -1364,6 +1361,10 @@ function homeRoomsButton(){
     document.getElementById("containerRooms").style.display="block"
     document.getElementById("containerTournaments").style.display="none"
 
+    document.getElementById("buttonRefresh").style.display="block"
+    document.getElementById("buttonRefresh").disabled = false;
+
+
     document.getElementById("homeAccount").style.display="none"
     document.getElementById("homeLeaderboard").style.display="none"
 
@@ -1378,6 +1379,10 @@ function homeTournamentsButton(){
     document.getElementById("homeRooms").style.display="block"
     document.getElementById("containerRooms").style.display="none"
     document.getElementById("containerTournaments").style.display="block"
+
+    
+    document.getElementById("buttonRefresh").style.display="block"
+    document.getElementById("buttonRefresh").disabled = false;
 
     document.getElementById("homeAccount").style.display="none"
     document.getElementById("homeLeaderboard").style.display="none"
@@ -1409,7 +1414,11 @@ function homeLeaderboardButton(){
 
     document.getElementById("homeRooms").style.display="none"
     document.getElementById("homeAccount").style.display="none"
+    document.getElementById("buttonRefresh").style.display="none"
+    document.getElementById("buttonRefresh").disabled = true;
+
     document.getElementById("homeLeaderboard").style.display="block"
+
 
     document.getElementById("homeRoomsButton").disabled = false;
     document.getElementById("homeTournamentsButton").disabled = false;
