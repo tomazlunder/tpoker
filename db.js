@@ -49,6 +49,29 @@ function getPerson(account_name){
     });
 }
 
+function getAdmin(account_name){
+    return new Promise((resolve,reject) => {
+        var query = con.query("SELECT * FROM admin_account WHERE account_name = ?",
+				[account_name],
+				function(err, result){
+					if (err) {
+                        console.log(err)
+                        reject()
+                    }
+					console.log(query.sql); 
+					console.log(result);
+                    console.log(result.length)
+					if(result.length == 1){
+                        resolve(result[0])
+					}
+					else{
+                        reject()
+					}
+				}
+			);
+    });
+}
+
 
 //getUserBalance
 function tryDecreaseBalance(user_id, decrease_by){
@@ -564,6 +587,7 @@ function isAdmin(id_person){
 module.exports = connectDatabase();
 
 module.exports.getPerson = getPerson;
+module.exports.getAdmin = getAdmin;
 module.exports.tryDecreaseBalance = tryDecreaseBalance;
 module.exports.tryIncreaseBalance = tryIncreaseBalance;
 module.exports.setPersonStack = setPersonStack;

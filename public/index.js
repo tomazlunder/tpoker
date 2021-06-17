@@ -213,6 +213,7 @@ socket.on('loginOk', (arg) => {
 
     if(isAdmin){
         document.getElementById("buttonAdminMode").style.display = "block";
+        //TODO: Disable lots of elements
     }
 
     document.getElementById("home_label_user").innerHTML = arg[0]

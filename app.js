@@ -359,6 +359,49 @@ io.on('connection', function(socket) {
    }
 
     async function login(data){
+
+		try{
+			const response = await db.getAdmin(data.name)
+
+			var hash = crypto.createHash('sha256').update(data.password + response.password_salt).digest('base64');
+
+			if(response.password_hash == hash){
+				var someUser = null;
+				for(var i in users){
+					if(users[i].id_person == response.id_person){
+						someUser = users[i];
+					}
+				}
+				
+				//User already logged in with another socket
+				if(someUser){
+					console.log("Duplicate admin login")
+					someUser.socket.emit("dc")
+					someUser.socket.disconnect();
+					someUser.socket = socket;
+					socketUserMap.set(socket, someUser);
+					someUser.disconnected = 0;
+				}
+				else {
+					var user = new User(socket,response.id_person,response.account_name, null, 1)
+
+					users.push(user);
+					socketUserMap.set(socket, user)
+
+					console.log(response.account_name + " logged in")
+					console.log('Number of users: '+ users.length);
+					socket.emit("loginOk",[response.account_name, null, 1]);
+				}
+			} else {
+				console.log("Admin account but wrong password.")
+				socket.emit("loginFailed", "Wrong password");
+				return;
+			}
+
+		} catch (err) {
+			console.log("Not an admin account.")
+			console.log
+		}
 	
 		try{
 			const response = await db.getPerson(data.name)
@@ -383,14 +426,7 @@ io.on('connection', function(socket) {
 					someUser.disconnected = 0;
 				}
 				else {
-
-					const responseAdmin = await db.isAdmin(response.id_person)
-					var isAdmin = 0;
-					if(responseAdmin == 1){
-						isAdmin = 1;
-					}
-
-					var user = new User(socket,response.id_person,response.account_name,response.balance, isAdmin)
+					var user = new User(socket,response.id_person,response.account_name,response.balance, 0)
 
 					users.push(user);
 					socketUserMap.set(socket, user)
@@ -484,6 +520,16 @@ io.on('connection', function(socket) {
 	//User registration
 	async function registration(data) {
         console.log(data)
+
+		
+		try{
+			const adminRensponse = await db.getAdmin(data.name);
+
+			socket.emit("registrationFailed", "Account already registered");
+			return;
+		} catch (err){
+			console.log("Not and admin account name")
+		}
 
         if(data.password.length < 8){
 			socket.emit("registrationFailed","Password too short")

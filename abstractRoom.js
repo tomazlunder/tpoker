@@ -378,22 +378,22 @@ class AbstractRoom{
     betting(){
 		this.sendGamestate();
 
+		//If only one player is left, go to showdown state
 		if(this.alivePlayers() == 1){
 			this.gameState.state = 6;
 			this.updateState();
 			return;
 		}
 
+		//If the player in line to act has aleady acted proceed to next state
 		if(this.gameState.to_act.has_acted){
 			this.gameState.state++;
 			this.updateState();
 			return;
 		}
 
-		//IF PLAYER TO ACT IS ALL IN
+		//If the player in line to act is already ALL-IN we skip calling for action and do a fake check
 		if(this.gameState.to_act.all_in){
-
-			//Skip calling for action, force him to check
 			console.log(this.room_id + ": " + this.gameState.to_act.name + "(all_in) forced skip");
 			this.gameState.to_act.has_acted = 1;
 			this.gameState.to_act = this.nextPlayer(this.seats.indexOf(this.gameState.to_act))
@@ -402,7 +402,7 @@ class AbstractRoom{
 			
 		} 
 
-		//IF EVERYONE ELSE IS ALL IN AND DOESN'T HAVE TO CALL
+		//If everyone else is all-in, to act doesn't have to call (bet = max bet)
 		var count = 0;
 		for(var i in this.seats){
 			if(this.seats[i]){
@@ -422,25 +422,23 @@ class AbstractRoom{
             
 		var actualTimeForAction = timeForAction;
 
-		//IF TO ACT IS A ZOMBIE (LEFT THE TABLE SCREEN) TODO
+		//If the player is marked as zombie (closed or left the game screen) force a check/fold
 		if(this.gameState.to_act.zombie){
-			//Skip calling for action, force check/fold
 			console.log(this.room_id + ": " + this.gameState.to_act.name + "(zomibe) forced to act");
 			actualTimeForAction = 0;
 		}
 
-		//SEND PLAYER THE ACTION REQUIRED MESSAGE
+		//Send the player action required message
 		else{
-			//this.sendGamestate();
+			//Message is sent to all the players so their game state is updated, but only to_act responds
 			this.io.to(this.room_id).emit('actionRequired', [this.gameState.to_act.name, actualTimeForAction, this.gameState.bet_size]);
 			this.acted = 0;
 			console.log(this.room_id + ": " + this.gameState.to_act.name + " called to act");
 		}
 
-		//Default action after timeout (canceled by clearning interval when acting)
-
+		//Default action after timeout (check/fold)
+		//The timeout is canceled by clearning interval when player acts!! 
 		this.timeoutID = setTimeout(() => {this.autoCheckFold()}, actualTimeForAction);
-
 	}
 
     autoCheckFold(){
@@ -483,10 +481,7 @@ class AbstractRoom{
 		this.sendRevealedCards();
 	}
 
-    
-
-
-    	//Result calculation
+    //Result calculation
 	calculateResults(){
 		var handUserMap = new Map()
 		var userHandMap = new Map()
