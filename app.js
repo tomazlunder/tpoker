@@ -16,6 +16,7 @@ const options = {
 };
 
 server = https.createServer(options, app);
+server.listen(3000);
 
 //var io = require('socket.io').listen(server);
 var io = require('socket.io')(server);
@@ -53,7 +54,7 @@ console.log(hash)
 
 
 app.get('/', function(req, res) {
-   res.sendFile(__dirname +'/index.html');
+   res.sendFile(__dirname +'/public/index.html');
 });
 
 io.on('connection', function(socket) {
@@ -437,7 +438,7 @@ io.on('connection', function(socket) {
 
 				console.log(response.account_name + " logged in")
 				console.log('Number of users: '+ users.length);
-				socket.emit("loginOk",[response.account_name, response.balance, isAdmin]);
+				socket.emit("loginOk",[response.account_name, response.balance, 0]);
 
 				//socket.emit("accountStats", [response.balance, response.winnings, response2, response.roundsPlayed, response3, response.email] )
 				accountStats()
@@ -847,5 +848,3 @@ async function runServer(){
 }
 
 runServer();
-
-server.listen(8000);

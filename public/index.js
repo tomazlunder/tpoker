@@ -1,8 +1,9 @@
-//var socket = io.connect('https://localhost:8000', {rejectUnauthorized: false});
 var socket = io();
-socket.rejectUnauthorized = false;
-var canvas = document.getElementById('canvas');
 
+//For testing purpuses, self signed certificate
+socket.rejectUnauthorized = false;
+//Canvas for drawing the game
+var canvas = document.getElementById('canvas');
 var audio_notify = new Audio('audio/notify.wav');
 var audio_deal = new Audio('audio/deal.wav');
 var audio_bridge = new Audio('audio/bridge.wav');
