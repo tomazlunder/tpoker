@@ -13,7 +13,7 @@ class Room extends ARoom.AbstractRoom{
     }
 
     async postGame(){
-		const roundId = await db.insertRoundReturnId(this.db_id);
+		const roundId = await db.insertRound(this.room_id);
 
         //Change winnings in DB
 		for(var i in this.seats){
@@ -21,13 +21,13 @@ class Room extends ARoom.AbstractRoom{
 				var finalResult = 0;
 				if(this.seats[i].result > 0){
 					//Add result to winnings
-					await db.changeWinnings(this.seats[i].id_login, this.seats[i].result-this.seats[i].total_bet_size)
+					await db.changeWinnings(this.seats[i].id_player, this.seats[i].result-this.seats[i].total_bet_size)
 					finalResult = this.seats[i].result-this.seats[i].total_bet_size;
 				}
 
 				else {
 					//Remove investment from winnings
-					await db.changeWinnings(this.seats[i].id_login, -this.seats[i].total_bet_size)
+					await db.changeWinnings(this.seats[i].id_player, -this.seats[i].total_bet_size)
 					finalResult = this.seats[i].result-this.seats[i].total_bet_size;
 				}
 
@@ -36,21 +36,24 @@ class Room extends ARoom.AbstractRoom{
 					hand = this.seats[i].cards[0] + this.seats[i].cards[1];
 				}
 
-				await db.insertResult(roundId, this.seats[i].id_login, hand, this.seats[i].result-this.seats[i].total_bet_size)
+				//await db.insertResult(roundId, this.seats[i].id_login, hand, this.seats[i].result-this.seats[i].total_bet_size)
 			}
 		}
 
+		console.log("test2")
 		if(this.splitTip > 0){
 			//TODO: Do something
+			await db.insertLeftover(this.splitTip, "round")
 		}
 
         console.log("Resetting game")
         console.log(this.room_id)
         this.io.to(this.room_id).emit('resetGame');
     
+		console.log("test3")
         for(var i in this.seats){
             if(this.seats[i]){
-				await db.setPersonStack(this.seats[i].id_login, this.seats[i].stack)
+				await db.setPlayerStack(this.seats[i].id_player, this.seats[i].stack)
             } 
         }
     
@@ -75,8 +78,8 @@ class Room extends ARoom.AbstractRoom{
         var seatId = this.getEmptySeatID()
 		if(seatId >= 0){
 			try{
-				console.log(user.id_login)
-				const response = await db.tryDecreaseBalance(user.id_login, buy_in)
+				//console.log(user.id_login)
+				const response = await db.decreaseBalance(user.id_player, buy_in)
 
 				user.balance -= buy_in
 
@@ -84,7 +87,7 @@ class Room extends ARoom.AbstractRoom{
 				user.zombie = 0
 				user.alive = 0
 
-				const response2 = await db.setPersonStack(user.id_login, user.stack)
+				const response2 = await db.setPlayerStack(user.id_player, user.stack)
 
 				this.seats[seatId] = user
 				console.log(this.room_id + ": join room sucessful ("+user.name+")")
@@ -117,7 +120,7 @@ class Room extends ARoom.AbstractRoom{
 					var user = this.seats[i]
 					
 					promises.push(db.transferStackToBalance(user))
-					promises.push(db.insertBuyout(user.id_login, user.stack, this.room_id))
+					promises.push(db.insertBuyout(user.id_player, user.stack, this.room_id))
 
 					user.balance = parseInt(user.balance)
 					user.balance += parseInt(user.stack);

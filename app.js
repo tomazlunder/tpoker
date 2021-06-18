@@ -53,7 +53,7 @@ io.on('connection', function(socket) {
 	socket.on('registration', registration);
 	socket.on('withdraw', withdraw);
 	socket.on('deposit', deposit)
-	socket.on('tip', tip);
+	//socket.on('tip', tip);
 	socket.on('changePassword', changePassword);
 	socket.on('changeEmail', changeEmail);
 
@@ -174,7 +174,7 @@ io.on('connection', function(socket) {
 		var hash = crypto.createHash('sha256').update(newPassword + salt).digest('base64');
 
 		try{
-			const response = await db.setPersonPassword(user.id_login, hash, salt);
+			const response = await db.setLoginPassword(user.id_login, hash, salt);
 
 			socket.emit("changePasswordOk");
 
@@ -196,7 +196,7 @@ io.on('connection', function(socket) {
 		var user = socketUserMap.get(socket);
 
 		try{
-			const response = await db.setPersonEmail(user.id_login, newEmail);
+			const response = await db.setPlayerEmail(user.id_player, newEmail);
 
 			socket.emit("changeEmailOk");
 			accountStats();
@@ -218,8 +218,8 @@ io.on('connection', function(socket) {
 
 		try{
 			var user = socketUserMap.get(socket)
-			const a = await db.tryDecreaseBalance(user.id_login, amount)
-			const b = await db.insertWithdraw(user.id_login, amount)
+			const a = await db.decreaseBalance(user.id_player, amount)
+			const b = await db.insertWithdraw(user.id_player, amount)
 			
 			user.balance = parseInt(user.balance) - parseInt(amount)
 			socket.emit("withdrawOk")
@@ -243,42 +243,18 @@ io.on('connection', function(socket) {
 
 		try{
 			var user = socketUserMap.get(socket)
-			const a = await db.tryIncreaseBalance(user.id_login, amount)
-			const b = await db.insertDeposit(user.id_login, amount)
+			const a = await db.increaseBalance(user.id_player, amount)
+			const b = await db.insertDeposit(user.id_player, amount)
 			
 			user.balance = parseInt(user.balance) + parseInt(amount)
 			socket.emit("depositOk")
 			user.socket.emit("newBalance", user.balance)
 			accountStats();
+			user.socket.emit("listOutdated")
 
 		} catch (err){
 			console.log("depositFailed")
 			socket.emit("depositFailed")
-			console.log(err)
-		}
-	}
-
-	async function tip(amount){
-		if(!socketUserMap.has(socket)){
-			console.log("Tried something but is not logged in")
-			socket.emit('dc')
-			socket.disconnect;
-			return;
-		}
-
-		try{
-			var user = socketUserMap.get(socket)
-			const a = await db.tryDecreaseBalance(user.id_login, amount)
-			const b = await db.insertTip(user.id_login, amount)
-			
-			user.balance -= amount
-			socket.emit("tipOk")
-			user.socket.emit("newBalance", user.balance)
-			accountStats();
-
-		} catch (err){
-			console.log("tipFailed")
-			socket.emit("tipFailed")
 			console.log(err)
 		}
 	}
@@ -398,6 +374,7 @@ io.on('connection', function(socket) {
 
 
 						var user = new User(socket,response.id_login,response.account_name, playerResponse.balance, 0)
+						user.id_player = playerResponse.id_player;
 						users.push(user);
 						socketUserMap.set(socket, user)
 
@@ -414,6 +391,8 @@ io.on('connection', function(socket) {
 				}
 
 
+			} else {
+				socket.emit("loginFailed", "Incorrect pasword")
 			}
 
 		} catch (err) {
@@ -580,7 +559,7 @@ io.on('connection', function(socket) {
 		}
 
 		try{
-			await db.insertBuyin(user.id_login, buy_in, room.room_id)
+			await db.insertBuyin(user.id_player, buy_in, room.room_id)
 		}
 		catch (err){
 			console.log(err)
@@ -682,14 +661,14 @@ io.on('connection', function(socket) {
 			if(the_room.state == 0 || the_room.state == 8){
 				if(buy_in <= the_room.max_buy_in - user.stack & buy_in != 0 & user.stack < the_room.min_buy_in){
 					try{
-						const response = db.tryDecreaseBalance(user.id_login, buy_in)
+						const response = db.decreaseBalance(user.id_player, buy_in)
 
-						const response2 = db.setPersonStack(user.id_login, parseInt(user.stack) + parseInt(buy_in))
+						const response2 = db.setPlayerStack(user.id_player, parseInt(user.stack) + parseInt(buy_in))
 
 						user.stack = user.stack + buy_in
 						user.balance -= buy_in
 
-						const response3 = db.insertBuyin(user.id_login, parseInt(buy_in), the_room.room_id);
+						const response3 = db.insertBuyin(user.id_player, parseInt(buy_in), the_room.room_id);
 
 						console.log(the_room.room_id + ": rebuy successful ("+user.name+","+buy_in+")")
 
@@ -724,6 +703,7 @@ function User(socket, id_login, name, balance, admin){
 	this.id_login = id_login;
 	this.name = name;
 	this.balance = balance;
+	this.id_player = null;
 	
 	this.cards = []
 	this.stack = 0;
@@ -768,7 +748,7 @@ async function runServer(){
 				if(req.fk_status == 1){
 					newRoom.running = 0;
 				}
-				newRoom.db_id = req.id_room;
+				//newRoom.db_id = req.id_room;
 
 				rooms.push(newRoom)
 				roomidRoomMap.set(req.id_room, newRoom)
@@ -818,7 +798,7 @@ async function runServer(){
 				if(req.fk_status == 1){
 					newRoom.running = 0;
 				}
-				newRoom.db_id = req.id_tournament;
+				//newRoom.db_id = req.id_tournament;
 
 				rooms.push(newRoom)
 				roomidRoomMap.set(req.id_room, newRoom)

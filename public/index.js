@@ -347,15 +347,15 @@ socket.on('leaderboard', (arg)=>{
                 table.append(row)
                 label_rank.innerHTML = (parseInt(i)+1);
                 label_name.innerHTML = arg[j][i].account_name;
-                label_winnings.innerHTML = arg[j][i].winnings;
-                label_roundsPlayed.innerHTML = arg[j][i].roundsPlayed;
+                label_winnings.innerHTML = arg[j][i].rounds_total;
+                label_roundsPlayed.innerHTML = arg[j][i].rounds_played;
             }
             if(j == 1){
                 table2.append(row)
                 label_rank.innerHTML = (parseInt(i)+1);
                 label_name.innerHTML = arg[j][i].account_name;
-                label_winnings.innerHTML = arg[j][i].tour_winnings;
-                label_roundsPlayed.innerHTML = arg[j][i].tour_played;
+                label_winnings.innerHTML = arg[j][i].tours_total;
+                label_roundsPlayed.innerHTML = arg[j][i].tours_played;
             }
         }
 
