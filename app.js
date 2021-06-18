@@ -37,10 +37,6 @@ var rooms = []
 
 const removeDisconnectedUsersTime = 5000;
 
-//const { RSA_PKCS1_PADDING } = require('constants');
-//const { Socket } = require('dgram');
-//const { REPL_MODE_SLOPPY } = require('repl');
-
 //Serving front-end files
 app.get('/', function(req, res) {
    res.sendFile(__dirname +'/public/index.html');
@@ -772,6 +768,23 @@ function User(socket, id_person, name, balance, admin){
 	this.is_admin = admin;
 }
 
+async function loadRoomsAndTournaments(){
+	try {
+		const roomRequest = await db.getRooms();
+		console.log(roomRequest.length)
+		for(var i = 0; roomRequest[i]; i<roomRequest.length){
+			var each = console.log(roomRequest[i])
+
+			i++
+		}
+		//console.log(roomRequest)
+
+	} catch(err){
+		console.log("LoadRoomsAndTours failed!")
+		console.log(err)
+	}
+}
+
 async function runServer(){
 	users = []
 	rooms = []
@@ -784,46 +797,71 @@ async function runServer(){
 		*/
 		const p = await db.transferAllPersonStackToBalance();
 
+		console.log("Fetching and creating rooms...")
+		const roomRequest = await db.getRooms();
+		for(var i in roomRequest){
+			req = roomRequest[i]
+			//console.log(req)
+			//console.log(req.id_room)
+			if(req.fk_status == 2 || req.fk_status == 1){
+				var newRoom = new Room.Room(io, "room" + req.id_room, req.name, req.seats, pidRoomMap, req.small_blind, req.min_buyin, req.max_buyin)
+				if(req.fk_status == 1){
+					newRoom.running = 0;
+				}
 
+				rooms.push(newRoom)
+				roomidRoomMap.set(req.id_room, newRoom)
+			}
 
-		//TODO: LAUNCH ROOMS FROM DB
+			i++;
+		}
 
-		/*
-		* Rooms
-		*
-		*/
-		var room1 = new Room.Room(io, "room1", "Room 1", 6, pidRoomMap,  1, 40, 100)
-		var room2 = new Room.Room(io, "room2", "Room 2", 6, pidRoomMap,  1, 80, 200)
-		var room3 = new Room.Room(io, "room3", "Room 3", 6, pidRoomMap,  2, 80, 200)
-		var room4 = new Room.Room(io, "room4", "Room 4", 6, pidRoomMap,  2, 160, 400)
+		console.log("Fetching and creating tournaments...")
+		const tourRequest = await db.getTournaments();
+		console.log(tourRequest.length)
+		for(var i in tourRequest){
+			req = tourRequest[i]
+			console.log(req)
 
-		var room5 = new Room.Room(io, "room5", "Room 5", 6, pidRoomMap,  2, 160, 400)
-		var room6 = new Room.Room(io, "room6", "Room 6", 6, pidRoomMap,  2, 160, 400)
-		var room7 = new Room.Room(io, "room7", "Room 7", 6, pidRoomMap,  2, 160, 400)
+			//Get rewards
+			var rewards = []
+			try{
+				const rewardRequest = await db.getTournamentReward(req.id_tournament);
+				for(var j in rewardRequest){
+					if(Number.isInteger(rewardRequest[j].reward)){
+						rewards.push(rewardRequest[j].reward)
+					}
+					else{
+						console.log("Error: Tournament reward not integer?!")
+						continue;
+					}
+				}
 
+			}
+			catch (err){
+				console.log("Tournament reward fetch error");
+				console.log(err)
+				continue
+			}
+			if(rewards.length == 0){
+				console.log("No rewards found")
+				continue;
+			}
 
-		var tour1 = new Tournament.Tournament(io, "tour1", "Small auto tournament", 3, pidRoomMap, 5, 50, 500, 1000 * 60 * 2, [100,50,0], 1)
+			console.log("Tournament rewards: " + rewards)
+			//If room is "stopped" or "running" add it to room list
+			if(req.fk_status == 2 || req.fk_status == 1){
+				var newRoom = new Tournament.Tournament(io, "tour" + req.id_tournament, req.name, req.num_players, pidRoomMap, req.small_blind, req.entry_fee, req.starting_chips,req.schedule_time, rewards, req.continuous)
+				if(req.fk_status == 1){
+					newRoom.running = 0;
+				}
 
-		rooms.push(room1)
-		rooms.push(room2)
-		rooms.push(room3)
-		rooms.push(room4)
-		rooms.push(tour1)
+				rooms.push(newRoom)
+				roomidRoomMap.set(req.id_room, newRoom)
+			}
 
-		rooms.push(room5)
-		rooms.push(room6)
-		rooms.push(room7)
-		roomidRoomMap.set("room5", room5);
-		roomidRoomMap.set("room5", room6);
-		roomidRoomMap.set("room6", room7);
-
-
-		roomidRoomMap.set("room1", room1);
-		roomidRoomMap.set("room2", room2);
-		roomidRoomMap.set("room3", room3);
-		roomidRoomMap.set("room4", room4);
-		roomidRoomMap.set("tour1", tour1);
-
+			i++;
+		}
 
 		//Starting rooms (... and tournaments)
 		for(var i in rooms){
@@ -848,4 +886,5 @@ async function runServer(){
 	}
 }
 
+//loadRoomsAndTournaments();
 runServer();

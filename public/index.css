@@ -856,4 +856,5 @@ input:checked + .slider2:before {
   #usersOnline{
     left: 22vw;
     padding-bottom: 2vmax;
+  }
 }

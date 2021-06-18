@@ -582,8 +582,56 @@ function isAdmin(id_person){
     });
 }
 
+function getRooms(){
+    return new Promise((resolve,reject) => {
+        var query = con.query("SELECT * FROM room",
+				null,
+				function(err, result){
+					if (err) {
+                        console.log(err)
+                        reject()
+                    }
+					console.log(query.sql); 
+					//console.log(result);
+					resolve(result)
+				}
+			);
+    });
+}
 
+function getTournaments(){
+    return new Promise((resolve,reject) => {
+        var query = con.query("SELECT * FROM tournament",
+				null,
+				function(err, result){
+					if (err) {
+                        console.log(err)
+                        reject()
+                    }
+					console.log(query.sql); 
+					//console.log(result);
+					resolve(result)
+				}
+			);
+    });
+}
 
+function getTournamentReward(tournament_id){
+    return new Promise((resolve,reject) => {
+        var query = con.query("SELECT placement,reward FROM tournament_reward WHERE fk_tournament = ? ORDER BY placement",
+                tournament_id,
+				function(err, result){
+					if (err) {
+                        console.log(err)
+                        reject()
+                    }
+					console.log(query.sql); 
+					//console.log(result);
+					resolve(result)
+				}
+			);
+    });
+}
 module.exports = connectDatabase();
 
 module.exports.getPerson = getPerson;
@@ -615,7 +663,7 @@ module.exports.isAdmin = isAdmin;
 module.exports.insertBuyin = insertBuyin;
 module.exports.insertBuyout = insertBuyout;
 
-
-
-
+module.exports.getRooms = getRooms;
+module.exports.getTournaments = getTournaments;
+module.exports.getTournamentReward = getTournamentReward;
 
