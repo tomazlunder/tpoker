@@ -37,6 +37,7 @@ var rooms = []
 
 const removeDisconnectedUsersTime = 5000;
 
+
 //Serving front-end files
 app.get('/', function(req, res) {
    res.sendFile(__dirname +'/public/index.html');
@@ -173,7 +174,7 @@ io.on('connection', function(socket) {
 		var hash = crypto.createHash('sha256').update(newPassword + salt).digest('base64');
 
 		try{
-			const response = await db.setPersonPassword(user.id_person, hash, salt);
+			const response = await db.setPersonPassword(user.id_login, hash, salt);
 
 			socket.emit("changePasswordOk");
 
@@ -195,7 +196,7 @@ io.on('connection', function(socket) {
 		var user = socketUserMap.get(socket);
 
 		try{
-			const response = await db.setPersonEmail(user.id_person, newEmail);
+			const response = await db.setPersonEmail(user.id_login, newEmail);
 
 			socket.emit("changeEmailOk");
 			accountStats();
@@ -217,8 +218,8 @@ io.on('connection', function(socket) {
 
 		try{
 			var user = socketUserMap.get(socket)
-			const a = await db.tryDecreaseBalance(user.id_person, amount)
-			const b = await db.insertWithdraw(user.id_person, amount)
+			const a = await db.tryDecreaseBalance(user.id_login, amount)
+			const b = await db.insertWithdraw(user.id_login, amount)
 			
 			user.balance = parseInt(user.balance) - parseInt(amount)
 			socket.emit("withdrawOk")
@@ -242,8 +243,8 @@ io.on('connection', function(socket) {
 
 		try{
 			var user = socketUserMap.get(socket)
-			const a = await db.tryIncreaseBalance(user.id_person, amount)
-			const b = await db.insertDeposit(user.id_person, amount)
+			const a = await db.tryIncreaseBalance(user.id_login, amount)
+			const b = await db.insertDeposit(user.id_login, amount)
 			
 			user.balance = parseInt(user.balance) + parseInt(amount)
 			socket.emit("depositOk")
@@ -267,8 +268,8 @@ io.on('connection', function(socket) {
 
 		try{
 			var user = socketUserMap.get(socket)
-			const a = await db.tryDecreaseBalance(user.id_person, amount)
-			const b = await db.insertTip(user.id_person, amount)
+			const a = await db.tryDecreaseBalance(user.id_login, amount)
+			const b = await db.insertTip(user.id_login, amount)
 			
 			user.balance -= amount
 			socket.emit("tipOk")
@@ -292,8 +293,8 @@ io.on('connection', function(socket) {
 
 		var alreadyInRoom
 		var user = socketUserMap.get(socket)
-		if(pidRoomMap.has(user.id_person)){
-			alreadyInRoom = pidRoomMap.get(user.id_person).room_id;
+		if(pidRoomMap.has(user.id_login)){
+			alreadyInRoom = pidRoomMap.get(user.id_login).room_id;
 		}
 
 		var roomList = []
@@ -335,12 +336,12 @@ io.on('connection', function(socket) {
 
 	    var the_room;
 
-		if(pidRoomMap.has(user.id_person)){
-			the_room = pidRoomMap.get(user.id_person)
+		if(pidRoomMap.has(user.id_login)){
+			the_room = pidRoomMap.get(user.id_login)
 		}
 	
 		if(the_room){
-			the_room.tryAction(user.id_person,action,raise_number)
+			the_room.tryAction(user.id_login,action,raise_number)
 		} else {
 			console.log(socket.id +" tried action but not in a room.")
 		}
@@ -348,64 +349,20 @@ io.on('connection', function(socket) {
    }
 
     async function login(data){
-
-		try{
-			const response = await db.getAdmin(data.name)
-
-			var hash = crypto.createHash('sha256').update(data.password + response.password_salt).digest('base64');
-
-			if(response.password_hash == hash){
-				var someUser = null;
-				for(var i in users){
-					if(users[i].id_person == response.id_person){
-						someUser = users[i];
-					}
-				}
-				
-				//User already logged in with another socket
-				if(someUser){
-					console.log("Duplicate admin login")
-					someUser.socket.emit("dc")
-					someUser.socket.disconnect();
-					someUser.socket = socket;
-					socketUserMap.set(socket, someUser);
-					someUser.disconnected = 0;
-				}
-				else {
-					var user = new User(socket,response.id_person,response.account_name, null, 1)
-
-					users.push(user);
-					socketUserMap.set(socket, user)
-
-					console.log(response.account_name + " logged in")
-					console.log('Number of users: '+ users.length);
-					socket.emit("loginOk",[response.account_name, null, 1]);
-				}
-			} else {
-				console.log("Admin account but wrong password.")
-				socket.emit("loginFailed", "Wrong password");
-				return;
-			}
-
-		} catch (err) {
-			console.log("Not an admin account.")
-			console.log
-		}
-	
-		try{
-			const response = await db.getPerson(data.name)
+		try {
+			const response = await db.getLogin(data.name)
 
 			var hash = crypto.createHash('sha256').update(data.password + response.password_salt).digest('base64');
 
 			if(response.password_hash == hash){
+				//Check if user is already logged in (disconnect current one and connect new one)
 				var someUser = null;
 				for(var i in users){
-					if(users[i].id_person == response.id_person){
+					if(users[i].id_login == response.id_login){
 						someUser = users[i];
 					}
 				}
-				
-				//User already logged in with another socket
+
 				if(someUser){
 					console.log("Duplicate login")
 					someUser.socket.emit("dc")
@@ -413,44 +370,59 @@ io.on('connection', function(socket) {
 					someUser.socket = socket;
 					socketUserMap.set(socket, someUser);
 					someUser.disconnected = 0;
+
+					socket.emit("loginOk",[response.account_name, someUser.balance, someUser.is_admin])
+					accountStats();
 				}
 				else {
-					var user = new User(socket,response.id_person,response.account_name,response.balance, 0)
 
-					users.push(user);
-					socketUserMap.set(socket, user)
+					try {
+						const adminResponse = await db.getAdmin(response.id_login)
+
+
+						var user = new User(socket,response.id_login,response.account_name, null, 1)
+						users.push(user);
+						socketUserMap.set(socket, user)
+
+						
+						console.log(response.account_name + " logged in")
+						console.log('Number of users: '+ users.length);
+						socket.emit("loginOk",[response.account_name, null, 1]);
+						return;
+					} catch (errA){
+						console.log("Admin login failed")
+					}
+
+					try {
+						const playerResponse = await db.getPlayer(response.id_login)
+
+
+						var user = new User(socket,response.id_login,response.account_name, playerResponse.balance, 0)
+						users.push(user);
+						socketUserMap.set(socket, user)
+
+						
+						console.log(response.account_name + " logged in")
+						console.log('Number of users: '+ users.length);
+						socket.emit("loginOk",[response.account_name, playerResponse.balance, 0]);
+						accountStats();
+
+					} catch (errA){
+						console.log("Player login failed")
+						socket.emit("login failed");
+					}
 				}
 
-				//const response2 = await db.getSumTips(response.id_person)
-				const response3 = await db.getPendingWithdrawals(response.id_person)
 
-				console.log(response.account_name + " logged in")
-				console.log('Number of users: '+ users.length);
-				socket.emit("loginOk",[response.account_name, response.balance, 0]);
-
-				//socket.emit("accountStats", [response.balance, response.winnings, response2, response.roundsPlayed, response3, response.email] )
-				accountStats()
-
-				console.log(response)
-				if(response.deposited > 0){
-					socket.emit("depositComplete", [response.deposited]);
-
-					const response3 = await db.resetDeposited(response.id_person)
-				}
-				
-			}
-			else{
-				console.log("Incorrect login info")
-				socket.emit("loginFailed", "Incorrect password");
 			}
 
 		} catch (err) {
 			console.log("Account not registered")
 			console.log(err)
 			socket.emit("loginFailed", "Account not registered");
-
 		}
 	}
+
 
 	async function accountStats(){
 		if(!socketUserMap.has(socket)){
@@ -463,13 +435,18 @@ io.on('connection', function(socket) {
 		try{
 			var user = socketUserMap.get(socket)
 
-			const response = await db.getPerson(user.name)
-			const response2 = await db.getSumTips(response.id_person)
-			const response3 = await db.getPendingWithdrawals(response.id_person)
+			const response = await db.getPlayer(user.id_login)
+			//const response2 = await db.getSumTips(response.id_login)
+			const response3 = await db.getPendingWithdrawals(response.id_player)
+
+			console.log(response)
+			console.log(response3)
 
 			winnings = parseInt(response.rounds_total) + parseInt(response.tours_total)
 
-			socket.emit("accountStats", [response.balance, winnings, response2, response.rounds_played, response3, response.email] )
+			//socket.emit("accountStats", [response.balance, winnings, response2, response.rounds_played, response3, response.email] )
+			socket.emit("accountStats", [response.balance, winnings, 0, response.rounds_played, response3, response.email] )
+
 			
 		} catch (err) {
 			console.log("[ERROR] accountStats")
@@ -496,7 +473,7 @@ io.on('connection', function(socket) {
 		}
 
 		var user = socketUserMap.get(socket)
-		var room = pidRoomMap.get(user.id_person)
+		var room = pidRoomMap.get(user.id_login)
 
 		if(room){
 			user.zombie = 1;
@@ -512,13 +489,10 @@ io.on('connection', function(socket) {
 
 		
 		try{
-			const adminRensponse = await db.getAdmin(data.name);
-
+			const login = await db.getLogin(data.name);
 			socket.emit("registrationFailed", "Account already registered");
 			return;
-		} catch (err){
-			console.log("Not and admin account name")
-		}
+		} catch (err){}
 
         if(data.password.length < 8){
 			socket.emit("registrationFailed","Password too short")
@@ -536,7 +510,9 @@ io.on('connection', function(socket) {
 				email = data.email
 			}
 
-			const response2 = await db.insertPerson(data.name, hash, salt, email)
+			const responseInsertLogin = await db.insertLogin(data.name, hash, salt)
+
+			const responseInsertPlayer = await db.insertPlayer(responseInsertLogin, email)
 
 			console.log("Registration Successful!")
 			login(data)
@@ -566,7 +542,7 @@ io.on('connection', function(socket) {
 		console.log(socketUserMap.get(socket).name + " requested to join " + room_id)
 		var user = socketUserMap.get(socket)
 
-		if(pidRoomMap.has(socketUserMap.get(socket).id_person)){
+		if(pidRoomMap.has(socketUserMap.get(socket).id_login)){
 			console.log("Already in a room... ("+rooms[i].room_id+")")
 
 			socket.emit("roomJoinFailed", "Already in a room!")
@@ -604,7 +580,7 @@ io.on('connection', function(socket) {
 		}
 
 		try{
-			await db.insertBuyin(user.id_person, buy_in, room.room_id)
+			await db.insertBuyin(user.id_login, buy_in, room.room_id)
 		}
 		catch (err){
 			console.log(err)
@@ -623,8 +599,8 @@ io.on('connection', function(socket) {
 
 		var user = socketUserMap.get(socket)
 
-		if(pidRoomMap.has(socketUserMap.get(socket).id_person)){
-			console.log("Already in a room... ("+pidRoomMap.has(socketUserMap.get(socket).id_person).room_id+")")
+		if(pidRoomMap.has(socketUserMap.get(socket).id_login)){
+			console.log("Already in a room... ("+pidRoomMap.has(socketUserMap.get(socket).id_login).room_id+")")
 
 			socket.emit("roomJoinFailed", "Already in a room!")
 			return;
@@ -661,7 +637,7 @@ io.on('connection', function(socket) {
 		}
 
 		var user = socketUserMap.get(socket)
-		var room = pidRoomMap.get(user.id_person)
+		var room = pidRoomMap.get(user.id_login)
 
 
 		if(room){
@@ -701,19 +677,19 @@ io.on('connection', function(socket) {
 		var buy_in = parseInt(arg[0])
 		var user = socketUserMap.get(socket)
 
-		if(pidRoomMap.has(user.id_person)){
-			var the_room = pidRoomMap.get(user.id_person);
+		if(pidRoomMap.has(user.id_login)){
+			var the_room = pidRoomMap.get(user.id_login);
 			if(the_room.state == 0 || the_room.state == 8){
 				if(buy_in <= the_room.max_buy_in - user.stack & buy_in != 0 & user.stack < the_room.min_buy_in){
 					try{
-						const response = db.tryDecreaseBalance(user.id_person, buy_in)
+						const response = db.tryDecreaseBalance(user.id_login, buy_in)
 
-						const response2 = db.setPersonStack(user.id_person, parseInt(user.stack) + parseInt(buy_in))
+						const response2 = db.setPersonStack(user.id_login, parseInt(user.stack) + parseInt(buy_in))
 
 						user.stack = user.stack + buy_in
 						user.balance -= buy_in
 
-						const response3 = db.insertBuyin(user.id_person, parseInt(buy_in), the_room.room_id);
+						const response3 = db.insertBuyin(user.id_login, parseInt(buy_in), the_room.room_id);
 
 						console.log(the_room.room_id + ": rebuy successful ("+user.name+","+buy_in+")")
 
@@ -743,9 +719,9 @@ process
   });
 
 //LOGGED IN USER
-function User(socket, id_person, name, balance, admin){
+function User(socket, id_login, name, balance, admin){
 	this.socket = socket;
-	this.id_person = id_person;
+	this.id_login = id_login;
 	this.name = name;
 	this.balance = balance;
 	
@@ -768,23 +744,6 @@ function User(socket, id_person, name, balance, admin){
 	this.is_admin = admin;
 }
 
-async function loadRoomsAndTournaments(){
-	try {
-		const roomRequest = await db.getRooms();
-		console.log(roomRequest.length)
-		for(var i = 0; roomRequest[i]; i<roomRequest.length){
-			var each = console.log(roomRequest[i])
-
-			i++
-		}
-		//console.log(roomRequest)
-
-	} catch(err){
-		console.log("LoadRoomsAndTours failed!")
-		console.log(err)
-	}
-}
-
 async function runServer(){
 	users = []
 	rooms = []
@@ -797,6 +756,7 @@ async function runServer(){
 		*/
 		const p = await db.transferAllPersonStackToBalance();
 
+		//Creating normal rooms
 		console.log("Fetching and creating rooms...")
 		const roomRequest = await db.getRooms();
 		for(var i in roomRequest){
@@ -804,10 +764,11 @@ async function runServer(){
 			//console.log(req)
 			//console.log(req.id_room)
 			if(req.fk_status == 2 || req.fk_status == 1){
-				var newRoom = new Room.Room(io, "room" + req.id_room, req.name, req.seats, pidRoomMap, req.small_blind, req.min_buyin, req.max_buyin)
+				var newRoom = new Room.Room(io, req.id_abstract_game, req.label, req.num_seats, pidRoomMap, req.small_blind, req.min_buyin, req.max_buyin)
 				if(req.fk_status == 1){
 					newRoom.running = 0;
 				}
+				newRoom.db_id = req.id_room;
 
 				rooms.push(newRoom)
 				roomidRoomMap.set(req.id_room, newRoom)
@@ -816,6 +777,8 @@ async function runServer(){
 			i++;
 		}
 
+
+		//Creating tournaments
 		console.log("Fetching and creating tournaments...")
 		const tourRequest = await db.getTournaments();
 		console.log(tourRequest.length)
@@ -826,7 +789,7 @@ async function runServer(){
 			//Get rewards
 			var rewards = []
 			try{
-				const rewardRequest = await db.getTournamentReward(req.id_tournament);
+				const rewardRequest = await db.getTournamentReward(req.id_game_tournament);
 				for(var j in rewardRequest){
 					if(Number.isInteger(rewardRequest[j].reward)){
 						rewards.push(rewardRequest[j].reward)
@@ -851,10 +814,11 @@ async function runServer(){
 			console.log("Tournament rewards: " + rewards)
 			//If room is "stopped" or "running" add it to room list
 			if(req.fk_status == 2 || req.fk_status == 1){
-				var newRoom = new Tournament.Tournament(io, "tour" + req.id_tournament, req.name, req.num_players, pidRoomMap, req.small_blind, req.entry_fee, req.starting_chips,req.schedule_time, rewards, req.continuous)
+				var newRoom = new Tournament.Tournament(io, req.id_abstract_game, req.label, req.num_players, pidRoomMap, req.small_blind, req.entry_fee, req.starting_chips,req.schedule_time, rewards, req.continuous)
 				if(req.fk_status == 1){
 					newRoom.running = 0;
 				}
+				newRoom.db_id = req.id_tournament;
 
 				rooms.push(newRoom)
 				roomidRoomMap.set(req.id_room, newRoom)
@@ -871,7 +835,7 @@ async function runServer(){
 		//Removing disconnected users from the user list
 		setInterval(function(){
 			for(var i =0;i<users.length;i++){
-				if(users[i].disconnected & !pidRoomMap.has(users[i].id_person)){
+				if(users[i].disconnected & !pidRoomMap.has(users[i].id_login)){
 				  console.log("Removed " + users[i].name + " from user list");
 				  users.splice(i,1);
 				  console.log('Number of users: '+users.length);

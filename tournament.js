@@ -43,9 +43,9 @@ class Tournament extends ARoom.AbstractRoom{
         
             if(this.rewards[i] > 0){
                 try{
-                    db.tryIncreaseBalance(player.id_person, this.rewards[i])
-                    db.changeWinnings(player.id_person, this.rewards[i]-this.entry_fee);
-                    db.changeTourWinnings(player.id_person, this.rewards[i]-this.entry_fee);
+                    db.tryIncreaseBalance(player.id_login, this.rewards[i])
+                    db.changeWinnings(player.id_login, this.rewards[i]-this.entry_fee);
+                    db.changeTourWinnings(player.id_login, this.rewards[i]-this.entry_fee);
 
                     player.balance += this.rewards[i]
                     player.socket.emit("newBalance", player.balance)
@@ -55,8 +55,8 @@ class Tournament extends ARoom.AbstractRoom{
                 }
             }
             else{
-                db.changeWinnings(player.id_person, -this.entry_fee);
-                db.changeTourWinnings(player.id_person, -this.entry_fee);
+                db.changeWinnings(player.id_login, -this.entry_fee);
+                db.changeTourWinnings(player.id_login, -this.entry_fee);
             }
 
             player.stack = 0;
@@ -65,7 +65,7 @@ class Tournament extends ARoom.AbstractRoom{
             player.socket.emit("tournamentEnd",[reversedNames, this.rewards]);
 
             console.log(this.room_id + ": removed player ("+ player.name+").")
-            this.playerRoomMap.delete(player.id_person)
+            this.playerRoomMap.delete(player.id_login)
 
             player.socket.emit("listOutdated")
             this.seats[this.seats.indexOf(player)] = null;
@@ -125,8 +125,8 @@ class Tournament extends ARoom.AbstractRoom{
         var seatId = this.getEmptySeatID()
 		if(seatId >= 0){
 			try{
-				console.log(user.id_person)
-				const response = await db.tryDecreaseBalance(user.id_person, this.entry_fee)
+				console.log(user.id_login)
+				const response = await db.tryDecreaseBalance(user.id_login, this.entry_fee)
 
 				user.balance -= this.entry_fee
 
@@ -137,14 +137,14 @@ class Tournament extends ARoom.AbstractRoom{
 
                 //Stack in db is set as entry fee for the tournament
                 //In case of server crash entry fee is returned
-				const response2 = await db.setPersonStack(user.id_person, this.entry_fee)
+				const response2 = await db.setPersonStack(user.id_login, this.entry_fee)
 
 				this.seats[seatId] = user
 				console.log(this.room_id + ": join room sucessful ("+user.name+")")
 				user.socket.emit("roomJoined",[this.type,this.room_id, seatId, user.balance])
 				user.socket.join(this.room_id);
 
-				this.playerRoomMap.set(user.id_person, this)
+				this.playerRoomMap.set(user.id_login, this)
  
 				if(this.roomState == 0){
 					this.updateState();
@@ -173,7 +173,7 @@ class Tournament extends ARoom.AbstractRoom{
                         var user = this.seats[i]
                         
                         //Return entry fee
-                        promises.push(db.tryIncreaseBalance(user.id_person, this.entry_fee))
+                        promises.push(db.tryIncreaseBalance(user.id_login, this.entry_fee))
     
                         user.balance = parseInt(user.balance)
                         user.balance += parseInt(this.entry_fee);
@@ -183,7 +183,7 @@ class Tournament extends ARoom.AbstractRoom{
                         this.seats[i].socket.emit("roomKick");
     
                         console.log(this.room_id + ": removed zombie player ("+ user.name+").")
-                        this.playerRoomMap.delete(user.id_person)
+                        this.playerRoomMap.delete(user.id_login)
     
                         user.socket.emit("listOutdated")
                         this.seats[i] = null;

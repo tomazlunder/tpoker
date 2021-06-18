@@ -1400,6 +1400,8 @@ function homeAccountButton(){
     document.getElementById("homeAccount").style.display="block"
     document.getElementById("homeLeaderboard").style.display="none"
 
+    document.getElementById("buttonRefresh").style.display="none"
+    document.getElementById("buttonRefresh").disabled = true;
 
     document.getElementById("homeRoomsButton").disabled = false;
     document.getElementById("homeTournamentsButton").disabled = false;

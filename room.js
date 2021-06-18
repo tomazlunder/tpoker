@@ -13,18 +13,30 @@ class Room extends ARoom.AbstractRoom{
     }
 
     async postGame(){
+		const roundId = await db.insertRoundReturnId(this.db_id);
+
         //Change winnings in DB
 		for(var i in this.seats){
 			if(this.seats[i]){
+				var finalResult = 0;
 				if(this.seats[i].result > 0){
 					//Add result to winnings
-					db.changeWinnings(this.seats[i].id_person, this.seats[i].result-this.seats[i].total_bet_size)
+					await db.changeWinnings(this.seats[i].id_login, this.seats[i].result-this.seats[i].total_bet_size)
+					finalResult = this.seats[i].result-this.seats[i].total_bet_size;
 				}
 
 				else {
 					//Remove investment from winnings
-					db.changeWinnings(this.seats[i].id_person, -this.seats[i].total_bet_size)
+					await db.changeWinnings(this.seats[i].id_login, -this.seats[i].total_bet_size)
+					finalResult = this.seats[i].result-this.seats[i].total_bet_size;
 				}
+
+				var hand = "fold"
+				if(this.seats[i].alive == 1 && this.alivePlayers > 1){
+					hand = this.seats[i].cards[0] + this.seats[i].cards[1];
+				}
+
+				await db.insertResult(roundId, this.seats[i].id_login, hand, this.seats[i].result-this.seats[i].total_bet_size)
 			}
 		}
 
@@ -38,7 +50,7 @@ class Room extends ARoom.AbstractRoom{
     
         for(var i in this.seats){
             if(this.seats[i]){
-                 db.setPersonStack(this.seats[i].id_person, this.seats[i].stack)
+				await db.setPersonStack(this.seats[i].id_login, this.seats[i].stack)
             } 
         }
     
@@ -63,8 +75,8 @@ class Room extends ARoom.AbstractRoom{
         var seatId = this.getEmptySeatID()
 		if(seatId >= 0){
 			try{
-				console.log(user.id_person)
-				const response = await db.tryDecreaseBalance(user.id_person, buy_in)
+				console.log(user.id_login)
+				const response = await db.tryDecreaseBalance(user.id_login, buy_in)
 
 				user.balance -= buy_in
 
@@ -72,14 +84,14 @@ class Room extends ARoom.AbstractRoom{
 				user.zombie = 0
 				user.alive = 0
 
-				const response2 = await db.setPersonStack(user.id_person, user.stack)
+				const response2 = await db.setPersonStack(user.id_login, user.stack)
 
 				this.seats[seatId] = user
 				console.log(this.room_id + ": join room sucessful ("+user.name+")")
 				user.socket.emit("roomJoined",[this.type,this.room_id, seatId, user.balance, this.min_buy_in, this.max_buy_in])
 				user.socket.join(this.room_id);
 
-				this.playerRoomMap.set(user.id_person, this)
+				this.playerRoomMap.set(user.id_login, this)
  
 				if(this.roomState == 0){
 					this.updateState();
@@ -105,7 +117,7 @@ class Room extends ARoom.AbstractRoom{
 					var user = this.seats[i]
 					
 					promises.push(db.transferStackToBalance(user))
-					promises.push(db.insertBuyout(user.id_person, user.stack, this.room_id))
+					promises.push(db.insertBuyout(user.id_login, user.stack, this.room_id))
 
 					user.balance = parseInt(user.balance)
 					user.balance += parseInt(user.stack);
@@ -115,7 +127,7 @@ class Room extends ARoom.AbstractRoom{
 					this.seats[i].socket.emit("roomKick");
 
 					console.log(this.room_id + ": removed zombie player ("+ user.name+").")
-					this.playerRoomMap.delete(user.id_person)
+					this.playerRoomMap.delete(user.id_login)
 
 					user.socket.emit("listOutdated")
 					this.seats[i] = null;

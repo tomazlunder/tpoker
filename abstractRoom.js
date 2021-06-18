@@ -33,6 +33,7 @@ class AbstractRoom{
         this.dealer_prev = null
 
 		this.splitTip = 0;
+		this.db_id = 0;
     }
 
     startRoom(){
@@ -273,8 +274,8 @@ class AbstractRoom{
     }
 
 
-    tryAction(id_person, action, arg){
-        if(this.gameState.to_act.id_person == id_person){
+    tryAction(id_login, action, arg){
+        if(this.gameState.to_act.id_login == id_login){
 			//If player acted already
 			if(this.acted == 1){
 				return;
@@ -371,7 +372,7 @@ class AbstractRoom{
 			this.betting()
 		}
 		else{
-			console.log(this.room_id + ": " + id_person + "tried to act but it is not his turn.");
+			console.log(this.room_id + ": " + id_login + "tried to act but it is not his turn.");
 		}
     }
 
