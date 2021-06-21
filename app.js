@@ -11,6 +11,7 @@ var Room = require('./room.js');
 var Tournament = require('./tournament.js');
 
 //Options for running HTTPS
+//TODO: Get a CA for production
 const options = {
   key: fs.readFileSync('key.pem'),
   cert: fs.readFileSync('cert.pem')
@@ -569,6 +570,8 @@ io.on('connection', function(socket) {
 	}
 
 	async function joinTournament(arg){
+		console.log("join tour "+ arg)
+
 		if(!socketUserMap.has(socket)){
 			console.log("Tried something but is not logged in")
 			socket.emit('dc')
@@ -590,8 +593,12 @@ io.on('connection', function(socket) {
 		console.log(socketUserMap.get(socket).name + " requested to join " + tournament_id)
 
 		var the_tournament = null;
-		if(roomidRoomMap.has(tournament_id)){
-			the_tournament = roomidRoomMap.get(tournament_id)
+		for(var i in rooms){
+			var room = rooms[i]
+			if(room.room_id == tournament_id){
+				the_tournament = room;
+				break;
+			}
 		}
 
 		if(!the_tournament){
@@ -761,10 +768,10 @@ async function runServer(){
 		//Creating tournaments
 		console.log("Fetching and creating tournaments...")
 		const tourRequest = await db.getTournaments();
-		console.log(tourRequest.length)
+		//console.log(tourRequest.length)
 		for(var i in tourRequest){
 			req = tourRequest[i]
-			console.log(req)
+			//console.log(req)
 
 			//Get rewards
 			var rewards = []

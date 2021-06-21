@@ -43,9 +43,9 @@ class Tournament extends ARoom.AbstractRoom{
         
             if(this.rewards[i] > 0){
                 try{
-                    db.tryIncreaseBalance(player.id_login, this.rewards[i])
-                    db.changeWinnings(player.id_login, this.rewards[i]-this.entry_fee);
-                    db.changeTourWinnings(player.id_login, this.rewards[i]-this.entry_fee);
+                    db.increaseBalance(player.id_player, this.rewards[i])
+                    db.changeWinnings(player.id_player, this.rewards[i]-this.entry_fee);
+                    db.changeTourWinnings(player.id_player, this.rewards[i]-this.entry_fee);
 
                     player.balance += this.rewards[i]
                     player.socket.emit("newBalance", player.balance)
@@ -55,8 +55,8 @@ class Tournament extends ARoom.AbstractRoom{
                 }
             }
             else{
-                db.changeWinnings(player.id_login, -this.entry_fee);
-                db.changeTourWinnings(player.id_login, -this.entry_fee);
+                db.changeWinnings(player.id_player, -this.entry_fee);
+                db.changeTourWinnings(player.id_player, -this.entry_fee);
             }
 
             player.stack = 0;
@@ -68,8 +68,15 @@ class Tournament extends ARoom.AbstractRoom{
             this.playerRoomMap.delete(player.id_login)
 
             player.socket.emit("listOutdated")
-            this.seats[this.seats.indexOf(player)] = null;
+
+            this.seats = []
+            for(var i = 0; i < this.numPlayers; i++){
+                this.seats.push(null);
+            }
         }
+
+        this.bustedPlayers = []
+        this.lastIncreaseTime = null;
 
         if(this.continuous && !this.markedForShutdown){
             this.roomState = 0;
@@ -126,7 +133,7 @@ class Tournament extends ARoom.AbstractRoom{
 		if(seatId >= 0){
 			try{
 				console.log(user.id_login)
-				const response = await db.tryDecreaseBalance(user.id_login, this.entry_fee)
+				const response = await db.decreaseBalance(user.id_player, this.entry_fee)
 
 				user.balance -= this.entry_fee
 
@@ -137,7 +144,7 @@ class Tournament extends ARoom.AbstractRoom{
 
                 //Stack in db is set as entry fee for the tournament
                 //In case of server crash entry fee is returned
-				const response2 = await db.setPersonStack(user.id_login, this.entry_fee)
+				const response2 = await db.setPlayerStack(user.id_player, this.entry_fee)
 
 				this.seats[seatId] = user
 				console.log(this.room_id + ": join room sucessful ("+user.name+")")
@@ -173,7 +180,7 @@ class Tournament extends ARoom.AbstractRoom{
                         var user = this.seats[i]
                         
                         //Return entry fee
-                        promises.push(db.tryIncreaseBalance(user.id_login, this.entry_fee))
+                        promises.push(db.decreaseBalance(user.id_login, this.entry_fee))
     
                         user.balance = parseInt(user.balance)
                         user.balance += parseInt(this.entry_fee);
