@@ -1,6 +1,4 @@
-var Hand = require('pokersolver').Hand;
 var gs = require('./gameState');
-
 var Sol = require('./solver.js');
 
 const timeForAction = 22000;
@@ -102,7 +100,7 @@ class AbstractRoom{
 				this.io.to(this.room_id).emit('roundStarted');
 				this.resetPlayers()
 
-				this.fold_win = 1;
+				this.fold_win = false;
 
 				var dealer, sb, fta, bb, lta;
 
@@ -233,7 +231,7 @@ class AbstractRoom{
 
 			case 5:{
 				//Showdown
-				this.fold_win = 0;
+				//this.fold_win = 0;
 				var hands = [];
 				for(var i in this.seats){
 					if(this.seats[i]){
@@ -247,7 +245,9 @@ class AbstractRoom{
 					}
 				}
 
-				this.io.to(this.room_id).emit('showdown', hands)
+				if(this.fold_win != 1){
+					this.io.to(this.room_id).emit('showdown', hands)
+				}
 
 				this.gameState.state = 6;
 			}
@@ -385,7 +385,8 @@ class AbstractRoom{
 
 		//If only one player is left, go to showdown state
 		if(this.alivePlayers() == 1){
-			this.gameState.state = 6;
+			this.gameState.state = 5;
+			this.fold_win = true;
 			this.updateState();
 			return;
 		}
@@ -508,6 +509,10 @@ class AbstractRoom{
 					hands.push(hand)
 				}
 			}
+		}
+
+		if(hands.length == 1){
+			this.fold_win = true;
 		}
 
 		var min_stack;

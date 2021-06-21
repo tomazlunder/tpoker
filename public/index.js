@@ -66,6 +66,8 @@ var myLeaderboard;
 
 var winnerCards = new Set()
 
+var winMessage = ""
+
 modalBuyIn = document.getElementById("modalBuyIn");
 modalRebuy = document.getElementById("modalRebuy");
 modalWithdraw = document.getElementById("modalWithdraw")
@@ -827,6 +829,7 @@ socket.on('namesStacks', (arg) => {
 
 socket.on('roundStarted', (arg) => {
     console.log("Received: Round started")
+    winMessage = ""
     state = 1;
     if(!mute){
         //audio_bridge.play();
@@ -909,6 +912,7 @@ socket.on('winner', (arg) =>{
     if(!hand){
         hand = "Uncalled bet"
     }
+    winMessage = hand;
 
     var localIndex = playerNames.indexOf(username)
     playerResults.splice(localIndex,1,result);
@@ -1735,7 +1739,6 @@ function drawProfile(x,y,id){
     var border_width = width*0.22;
     var border_height = 0.4 * border_width
 
-    var img1,img2
     if(id != 0 && playerAlive[id]){
         var cardHeight = height*0.18;
         var cardWidth = cardHeight * 0.65;
@@ -1769,8 +1772,6 @@ function drawProfile(x,y,id){
 
     ctx.font = "40px Tahoma";
     ctx.fillText(playerNames[id], x + 0.01*width, y + 0.04*height);
-
-    var radious = border_height/3;
 
     var percentage = timeToAct/startTime;
 
@@ -2005,7 +2006,13 @@ function drawNumbers(){
     var height = canvas.height;
     var ctx = canvas.getContext("2d");
 
-    
+    if(state == 3){
+        ctx.font = "Bold 80px Tahoma";
+        ctx.fillStyle =  "black";
+
+        var textWidth = ctx.measureText(winMessage).width;
+        ctx.fillText(winMessage, width*0.5 - textWidth/2, height * 0.35);
+    }
 
     //Pot
     if(pot > 0 & state == 1){
@@ -2017,7 +2024,12 @@ function drawNumbers(){
     }
 
     if(state == 3){
-        drawTimer(width*0.5, height*0.34, 80, 60)
+        //drawTimer(width*0.5, height*0.34, 80, 60)
+
+        var percentage = timeToAct/startTime;
+
+        ctx.fillStyle = getGreenRedPercentage(1-percentage);
+        ctx.fillRect( width*0.4, height * 0.37,width * 0.2 * percentage, height *0.04)
     }
 
     //Bet sizes
