@@ -1,6 +1,8 @@
 var Hand = require('pokersolver').Hand;
 var gs = require('./gameState');
 
+var Sol = require('./solver.js');
+
 const timeForAction = 22000;
 const timeAtEnd = 12000;
 
@@ -34,6 +36,8 @@ class AbstractRoom{
 
 		this.splitTip = 0;
 		this.db_id = 0;
+
+		this.solver = new Sol.Solver();
     }
 
     startRoom(){
@@ -496,7 +500,8 @@ class AbstractRoom{
 				players.push(this.seats[i]);
 				investment.push(this.seats[i].total_bet_size)
 				if(this.seats[i].alive){
-					var hand = Hand.solve(this.gameState.revealedCards.concat(this.seats[i].cards))
+					//var hand = Hand.solve(this.gameState.revealedCards.concat(this.seats[i].cards))
+					var hand = this.solver.solveHand(this.gameState.revealedCards.concat(this.seats[i].cards))
 					handUserMap.set(hand, this.seats[i])
 					userHandMap.set(this.seats[i], hand)
 
@@ -517,7 +522,8 @@ class AbstractRoom{
 				investment[i]-= min_stack;
 			}
 
-			var winnerHands = Hand.winners(hands)
+			//var winnerHands = Hand.winners(hands)
+			var winnerHands = this.solver.returnWinners(hands)
 			console.log("["+this.room_id +"] Running pot: " + runningPot + " num_hands+= " + hands.length + " " + "num_win: " + winnerHands.length)
 
 			this.splitTip += runningPot%winnerHands.length; //In case multiple winners but not divisible by number of players, this counts as a tip for the house;
@@ -537,7 +543,8 @@ class AbstractRoom{
 
 				console.log("["+this.room_id +"] Winner: " + winningPlayer.name + " result+= " + Math.floor(runningPot/winnerHands.length)) + " Desc: " + winnerHands[i].desc
 
-				userHandMap.set(winningPlayer, winnerHands[i].descr)
+				userHandMap.set(winningPlayer, winnerHands[i].getHandName())
+				
 			}
 
 			var remove_ids = []
@@ -571,7 +578,7 @@ class AbstractRoom{
 			if(this.seats[i]){
 				if(this.seats[i].result > 0){
 					this.seats[i].stack+=this.seats[i].result;
-					var desc = userHandMap.get(this.seats[i]).descr
+					var desc = userHandMap.get(this.seats[i])
 					if(this.fold_win){
 						desc = "Fold win"
 					}
